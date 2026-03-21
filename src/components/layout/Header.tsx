@@ -34,21 +34,21 @@ export function Header() {
       <div className="flex-1" />
 
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent transition-colors outline-none">
-            <Avatar className="h-7 w-7">
-              <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="text-left hidden sm:block">
-              <p className="text-xs font-medium text-foreground leading-none">{email ?? 'User'}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {role ? ROLE_LABELS[role as UserRole] : ''}
-              </p>
-            </div>
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
+        <DropdownMenuTrigger
+          className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent transition-colors outline-none"
+        >
+          <Avatar className="h-7 w-7">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="text-left hidden sm:block">
+            <p className="text-xs font-medium text-foreground leading-none">{email ?? 'User'}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {role ? ROLE_LABELS[role as UserRole] : ''}
+            </p>
+          </div>
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem disabled>
