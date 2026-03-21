@@ -51,7 +51,7 @@ export function ReservationFormSheet({ open, onOpenChange, reservation }: Props)
   const [endsTime, setEndsTime] = useState('23:00');
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as never,
     defaultValues: { guest_count: 1 },
   });
 
@@ -110,7 +110,7 @@ export function ReservationFormSheet({ open, onOpenChange, reservation }: Props)
 
         {error && <div className="mb-4"><ErrorDisplay error={error} /></div>}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-1.5">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-1.5 lg:p-3">
           <div className="space-y-1.5">
             <Label>Occasion Type *</Label>
             <Select onValueChange={(v) => setValue('occasion_type', v as string)} value={watch('occasion_type')}>
@@ -143,11 +143,9 @@ export function ReservationFormSheet({ open, onOpenChange, reservation }: Props)
             <div className="space-y-1.5">
               <Label>Starts At *</Label>
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal">
+                <PopoverTrigger render={<Button variant="outline" className="w-full justify-start text-left font-normal" />}>
                     <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" />
                     {startsAt ? format(startsAt, 'MMM d, yyyy') : 'Pick date'}
-                  </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
                   <Calendar mode="single" selected={startsAt} onSelect={setStartsAt} />
@@ -158,11 +156,9 @@ export function ReservationFormSheet({ open, onOpenChange, reservation }: Props)
             <div className="space-y-1.5">
               <Label>Ends At *</Label>
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal">
+                <PopoverTrigger render={<Button variant="outline" className="w-full justify-start text-left font-normal" />}>
                     <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" />
                     {endsAt ? format(endsAt, 'MMM d, yyyy') : 'Pick date'}
-                  </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
                   <Calendar mode="single" selected={endsAt} onSelect={setEndsAt} />
