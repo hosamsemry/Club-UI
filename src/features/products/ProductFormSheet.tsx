@@ -40,7 +40,7 @@ export function ProductFormSheet({ open, onOpenChange, product }: Props) {
   const error = createError ?? updateError;
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as never,
     defaultValues: { is_active: true, stock_quantity: 0, low_stock_threshold: 10 },
   });
 
@@ -88,7 +88,7 @@ export function ProductFormSheet({ open, onOpenChange, product }: Props) {
 
         {error && <div className="mb-4"><ErrorDisplay error={error} /></div>}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-1.5 lg:p-3">
           <div className="space-y-1.5">
             <Label htmlFor="name">Product Name *</Label>
             <Input id="name" {...register('name')} placeholder="e.g. Water 500ml" />
@@ -97,7 +97,7 @@ export function ProductFormSheet({ open, onOpenChange, product }: Props) {
 
           <div className="space-y-1.5">
             <Label htmlFor="category">Category *</Label>
-            <Select onValueChange={(v) => setValue('category', v)} value={watch('category')}>
+            <Select onValueChange={(v) => v && setValue('category', v)} value={watch('category')}>
               <SelectTrigger id="category">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
