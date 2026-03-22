@@ -66,7 +66,7 @@ export default function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="top-right" toastOptions={{ className: 'animate-slide-in-right' }} />
     </TooltipProvider>
   );
 }
