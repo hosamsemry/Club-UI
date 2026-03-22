@@ -200,6 +200,18 @@ export interface AuditLog {
   created_at: string;
 }
 
+// ─── Revenue ─────────────────────────────────────────────────────────────────
+export type RevenueField = 'tickets' | 'products' | 'events';
+
+export interface RevenueReport {
+  start_date: string;
+  end_date: string;
+  tickets?: string;
+  products?: string;
+  events?: string;
+  total_revenue: string;
+}
+
 // ─── API Error ───────────────────────────────────────────────────────────────
 export interface ApiError {
   status: number;

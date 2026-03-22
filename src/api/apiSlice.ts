@@ -19,6 +19,7 @@ import type {
   DailyProfit,
   TopProduct,
   DailyReport,
+  RevenueReport,
 } from '@/types';
 import { getAccessToken, getRefreshToken, setAccessToken } from '@/utils/auth';
 import { logout, tokenUpdated } from '@/features/auth/authSlice';
@@ -285,6 +286,17 @@ export const apiSlice = createApi({
       query: (id) => ({ url: `/api/reporting/daily/${id}/regenerate/`, method: 'POST', body: {} }),
       invalidatesTags: ['Reports'],
     }),
+
+    // ─── Revenue Calculator ─────────────────────────────────────────────
+    getRevenue: builder.query<RevenueReport, { start_date: string; end_date: string; fields: string[] }>({
+      query: ({ start_date, end_date, fields }) => {
+        const params = new URLSearchParams();
+        params.set('start_date', start_date);
+        params.set('end_date', end_date);
+        fields.forEach((f) => params.append('fields', f));
+        return { url: `/api/reporting/revenue/?${params.toString()}` };
+      },
+    }),
   }),
 });
 
@@ -331,6 +343,7 @@ export const {
   useGetTopProductsQuery,
   useGetReportsQuery,
   useRegenerateReportMutation,
+  useLazyGetRevenueQuery,
 } = apiSlice;
 
 export const API_BASE_URL = BASE_URL;

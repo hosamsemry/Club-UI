@@ -13,6 +13,7 @@ import { formatDate } from '@/utils/format';
 import { getAccessToken } from '@/utils/auth';
 import { API_BASE_URL } from '@/api/apiSlice';
 import { toast } from 'sonner';
+import { RevenueCalculator } from './RevenueCalculator';
 
 export function ReportsPage() {
   const [page, setPage] = useState(1);
@@ -61,6 +62,10 @@ export function ReportsPage() {
   return (
     <div>
       <PageHeader title="Daily Reports" description="View and export daily operation reports" />
+
+      <div className="mb-6">
+        <RevenueCalculator />
+      </div>
 
       {error && <ErrorDisplay error={error} />}
 
