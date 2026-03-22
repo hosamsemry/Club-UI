@@ -25,14 +25,14 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, color, iconBg }: StatCardProps) {
   return (
-    <Card className="border shadow-xs hover:shadow-sm transition-shadow">
+    <Card className="border border-border/60 shadow-none hover:shadow-md hover:border-border transition-all duration-300 hover-lift group">
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</p>
-            <p className={`text-2xl font-bold mt-1.5 ${color}`}>{value}</p>
+          <div className="space-y-1">
+            <p className="text-[0.7rem] font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
+            <p className={`text-2xl font-bold tracking-tight animate-count-up ${color}`}>{value}</p>
           </div>
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBg}`}>
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${iconBg} transition-transform duration-300 group-hover:scale-110`}>
             <Icon className="h-5 w-5" />
           </div>
         </div>
@@ -43,14 +43,14 @@ function StatCard({ title, value, icon: Icon, color, iconBg }: StatCardProps) {
 
 function StatCardSkeleton() {
   return (
-    <Card>
+    <Card className="border border-border/40">
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <Skeleton className="h-3 w-24" />
-            <Skeleton className="h-7 w-16" />
+          <div className="space-y-2.5">
+            <Skeleton className="h-3 w-24 rounded-md" />
+            <Skeleton className="h-7 w-16 rounded-md" />
           </div>
-          <Skeleton className="h-10 w-10 rounded-xl" />
+          <Skeleton className="h-11 w-11 rounded-xl" />
         </div>
       </CardContent>
     </Card>
@@ -67,7 +67,7 @@ export function DashboardPage() {
       {error && <ErrorDisplay error={error} />}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8 stagger-children">
         {isLoading ? (
           Array.from({ length: 7 }).map((_, i) => <StatCardSkeleton key={i} />)
         ) : data ? (
@@ -108,7 +108,7 @@ export function DashboardPage() {
               iconBg="bg-teal-50 text-teal-600"
             />
             <StatCard
-              title="Today's Revenue"
+              title="Today's Ticket Revenue"
               value={formatCurrency(data.today_ticket_revenue)}
               icon={DollarSign}
               color="text-green-700"
@@ -126,9 +126,9 @@ export function DashboardPage() {
       </div>
 
       {/* Recent Activity */}
-      <Card>
+      <Card className="border border-border/60 shadow-none animate-fade-in-up" style={{ animationDelay: '200ms' }}>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Recent Activity
           </CardTitle>
         </CardHeader>
@@ -138,19 +138,19 @@ export function DashboardPage() {
               <div className="space-y-3 p-4">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <Skeleton className="h-8 w-8 rounded-full" />
+                    <Skeleton className="h-9 w-9 rounded-full" />
                     <div className="space-y-1.5 flex-1">
-                      <Skeleton className="h-3 w-48" />
-                      <Skeleton className="h-3 w-32" />
+                      <Skeleton className="h-3 w-48 rounded-md" />
+                      <Skeleton className="h-3 w-32 rounded-md" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : data?.recent_activity && data.recent_activity.length > 0 ? (
-              <div className="divide-y divide-border">
+              <div className="divide-y divide-border/50">
                 {data.recent_activity.map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 px-4 py-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <div key={i} className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-muted/40">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-border/30">
                       <span className="text-primary text-xs font-semibold">
                         {item.user_email.slice(0, 1).toUpperCase()}
                       </span>
@@ -159,16 +159,17 @@ export function DashboardPage() {
                       <p className="text-sm font-medium text-foreground truncate">
                         {formatAction(item.action)}
                       </p>
-                      <p className="text-xs text-muted-foreground">{item.user_email}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{item.user_email}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground shrink-0">
+                    <p className="text-[0.65rem] text-muted-foreground/70 shrink-0 tabular-nums">
                       {formatDateTime(item.created_at)}
                     </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-1">
+                <span className="text-lg">—</span>
                 No recent activity
               </div>
             )}
