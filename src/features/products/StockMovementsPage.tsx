@@ -38,10 +38,10 @@ export function StockMovementsPage() {
 
       {error && <ErrorDisplay error={error} />}
 
-      <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border/60 bg-card overflow-hidden shadow-none animate-fade-in-up" style={{ animationDelay: '100ms' }}>
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/40">
+            <TableRow className="bg-muted/30 hover:bg-muted/30">
               <TableHead>Product</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Direction</TableHead>
