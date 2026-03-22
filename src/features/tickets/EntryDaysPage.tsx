@@ -109,10 +109,10 @@ export function EntryDaysPage() {
         actions={<Button size="sm" onClick={openCreate}><Plus className="h-4 w-4 mr-1.5" /> Add Day</Button>}
       />
       {error && <ErrorDisplay error={error} />}
-      <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border/60 bg-card overflow-hidden shadow-none animate-fade-in-up" style={{ animationDelay: '100ms' }}>
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/40">
+            <TableRow className="bg-muted/30 hover:bg-muted/30">
               <TableHead>Visit Date</TableHead>
               <TableHead className="text-right">Capacity</TableHead>
               <TableHead>Status</TableHead>

@@ -86,9 +86,9 @@ export function TicketSalePage() {
 
       {error && <div className="mb-4"><ErrorDisplay error={error} /></div>}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
         {/* Buyer Info */}
-        <Card>
+        <Card className="border border-border/60 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               Buyer Information
@@ -129,7 +129,7 @@ export function TicketSalePage() {
         </Card>
 
         {/* Ticket Selection */}
-        <Card>
+        <Card className="border border-border/60 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               Ticket Selection
@@ -197,7 +197,7 @@ export function TicketSalePage() {
           </CardContent>
         </Card>
 
-        <Button type="submit" className="w-full" size="lg" disabled={isLoading || items.length === 0}>
+        <Button type="submit" className="w-full press" size="lg" disabled={isLoading || items.length === 0}>
           {isLoading ? 'Processing…' : `Sell Tickets · ${formatCurrency(total)}`}
         </Button>
       </form>
