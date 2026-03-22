@@ -61,61 +61,81 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Ambient background glow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/[0.03] rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/[0.02] rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.015] rounded-full blur-3xl" />
+      </div>
+
+      <div className="w-full max-w-sm relative z-10 animate-fade-in-up">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-base">CM</span>
+        <div className="flex items-center justify-center gap-3 mb-10">
+          <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center shadow-lg shadow-white/10 animate-float">
+            <span className="text-black font-bold text-sm tracking-tight">CM</span>
           </div>
-          <span className="text-white font-semibold text-lg">Club Management</span>
+          <span className="text-white font-semibold text-lg tracking-tight">Club Management</span>
         </div>
 
-        <Card className="border-0 shadow-2xl">
+        <Card className="border border-white/[0.08] shadow-2xl shadow-black/50 bg-[#141414]">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-xl">Sign In</CardTitle>
-            <CardDescription>Enter your credentials to access the dashboard</CardDescription>
+            <CardTitle className="text-xl text-white">Sign In</CardTitle>
+            <CardDescription className="text-white/40">Enter your credentials to access the dashboard</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {serverError && (
-                <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">{serverError}</div>
+                <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm border border-destructive/20 animate-scale-in">
+                  {serverError}
+                </div>
               )}
 
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white/70 text-xs font-medium">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="you@example.com"
                   autoComplete="email"
                   {...register('email')}
-                  className={errors.email ? 'border-destructive' : ''}
+                  className={`bg-white/[0.06] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:ring-white/10 transition-all duration-200 h-11 ${errors.email ? 'border-destructive' : ''}`}
                 />
                 {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="password">Password</Label>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-white/70 text-xs font-medium">Password</Label>
                 <Input
                   id="password"
                   type="password"
                   placeholder="••••••••"
                   autoComplete="current-password"
                   {...register('password')}
-                  className={errors.password ? 'border-destructive' : ''}
+                  className={`bg-white/[0.06] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:ring-white/10 transition-all duration-200 h-11 ${errors.password ? 'border-destructive' : ''}`}
                 />
                 {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
               </div>
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? 'Signing in…' : 'Sign In'}
+              <Button
+                type="submit"
+                className="w-full h-11 bg-white text-black hover:bg-white/90 font-semibold transition-all duration-200 press mt-2"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                    Signing in…
+                  </span>
+                ) : (
+                  'Sign In'
+                )}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        <p className="text-center text-slate-500 text-xs mt-6">
+        <p className="text-center text-white/20 text-xs mt-8 tracking-wide">
           Staff access only · Contact your manager for credentials
         </p>
       </div>

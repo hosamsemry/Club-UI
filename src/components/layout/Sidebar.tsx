@@ -95,7 +95,7 @@ function NavButton({ item }: { item: NavItem }) {
       isActive={!!match}
       tooltip={item.label}
     >
-      <item.icon className="h-4 w-4 shrink-0" />
+      <item.icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
       <span>{item.label}</span>
     </SidebarMenuButton>
   );
@@ -106,10 +106,10 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="px-4 py-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center shrink-0">
-            <span className="text-white text-xs font-bold">CM</span>
+      <SidebarHeader className="px-4 py-5 border-b border-sidebar-border">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-white to-white/80 flex items-center justify-center shrink-0 shadow-sm transition-transform duration-200 hover:scale-105">
+            <span className="text-black text-xs font-bold tracking-tight">CM</span>
           </div>
           <span className="font-semibold text-sidebar-accent-foreground text-sm truncate group-data-[collapsible=icon]:hidden">
             Club Management
@@ -117,7 +117,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="pt-2">
         {NAV_GROUPS.map((group) => {
           const visibleItems = group.items.filter(
             (item) => !item.permission || can(role, item.permission),
@@ -125,13 +125,13 @@ export function AppSidebar() {
           if (visibleItems.length === 0) return null;
           return (
             <SidebarGroup key={group.label}>
-              <SidebarGroupLabel className="text-sidebar-foreground/50 text-xs uppercase tracking-widest px-3">
+              <SidebarGroupLabel className="text-sidebar-foreground/40 text-[0.65rem] font-semibold uppercase tracking-[0.15em] px-3 mb-1">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {visibleItems.map((item) => (
-                    <SidebarMenuItem key={item.to}>
+                    <SidebarMenuItem key={item.to} className="group">
                       <NavButton item={item} />
                     </SidebarMenuItem>
                   ))}

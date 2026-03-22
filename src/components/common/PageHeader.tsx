@@ -8,10 +8,12 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
-    <div className="flex items-start justify-between mb-6">
+    <div className="flex items-start justify-between mb-8 animate-fade-in-down">
       <div>
-        <h1 className="text-xl font-semibold text-foreground">{title}</h1>
-        {description && <p className="text-sm text-muted-foreground mt-0.5">{description}</p>}
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1>
+        {description && (
+          <p className="text-sm text-muted-foreground mt-1">{description}</p>
+        )}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>

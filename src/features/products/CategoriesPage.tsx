@@ -115,10 +115,10 @@ export function CategoriesPage() {
         actions={<Button size="sm" onClick={openCreate}><Plus className="h-4 w-4 mr-1.5" /> Add Category</Button>}
       />
       {error && <ErrorDisplay error={error} />}
-      <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border/60 bg-card overflow-hidden shadow-none animate-fade-in-up" style={{ animationDelay: '100ms' }}>
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/40">
+            <TableRow className="bg-muted/30 hover:bg-muted/30">
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="w-20" />

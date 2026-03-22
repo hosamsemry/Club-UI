@@ -60,7 +60,7 @@ export function ReservationsPage() {
 
       {error && <ErrorDisplay error={error} />}
 
-      <div className="flex flex-wrap gap-3 mb-4">
+      <div className="flex flex-wrap gap-3 mb-5">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -85,10 +85,10 @@ export function ReservationsPage() {
         </Select>
       </div>
 
-      <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border/60 bg-card overflow-hidden shadow-none animate-fade-in-up" style={{ animationDelay: '100ms' }}>
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/40">
+            <TableRow className="bg-muted/30 hover:bg-muted/30">
               <TableHead>Guest</TableHead>
               <TableHead>Occasion</TableHead>
               <TableHead>Starts At</TableHead>

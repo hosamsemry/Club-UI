@@ -40,7 +40,7 @@ export function CheckInPage() {
       <PageHeader title="Check In" description="Scan or enter ticket code to check in" />
 
       {/* Code Input */}
-      <Card className="mb-6">
+      <Card className="mb-6 border border-border/60 shadow-none">
         <CardContent className="pt-6 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="code" className="text-base font-medium">Ticket Code</Label>
@@ -51,35 +51,37 @@ export function CheckInPage() {
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 onKeyDown={handleKeyDown}
                 placeholder="Enter ticket code…"
-                className="font-mono text-lg h-12 tracking-widest"
+                className="font-mono text-lg h-12 tracking-widest transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                 autoFocus
                 autoComplete="off"
               />
               <Button
                 onClick={handleCheckIn}
                 disabled={isLoading || !code.trim()}
-                className="h-12 px-6"
+                className="h-12 px-6 press"
               >
                 <ScanLine className="h-4 w-4 mr-2" />
                 {isLoading ? 'Checking…' : 'Check In'}
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">Press Enter to check in quickly</p>
+            <p className="text-xs text-muted-foreground/60">Press Enter to check in quickly</p>
           </div>
         </CardContent>
       </Card>
 
       {/* Result */}
       {lastResult && (
-        <Card className={`border-2 ${lastResult.success ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50'}`}>
+        <Card className={`border-2 animate-scale-in ${lastResult.success ? 'border-green-300 bg-green-50/50' : 'border-red-300 bg-red-50/50'}`}>
           <CardContent className="pt-6">
             {lastResult.success && lastResult.ticket ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-6 w-6 text-green-600" />
+              <div className="space-y-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  </div>
                   <span className="font-semibold text-green-800 text-lg">Check-in Successful!</span>
                 </div>
-                <div className="bg-white rounded-md p-4 space-y-2 text-sm">
+                <div className="bg-white rounded-lg p-4 space-y-2.5 text-sm border border-green-100">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Code</span>
                     <span className="font-mono font-semibold">{lastResult.ticket.code}</span>
@@ -99,8 +101,10 @@ export function CheckInPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <XCircle className="h-6 w-6 text-red-600" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                  <XCircle className="h-5 w-5 text-red-600" />
+                </div>
                 <span className="font-medium text-red-800">{lastResult.message}</span>
               </div>
             )}

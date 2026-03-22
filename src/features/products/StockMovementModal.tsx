@@ -38,7 +38,7 @@ export function StockMovementModal({ open, onOpenChange, preselectedProductId }:
   const [createMovement, { isLoading, error }] = useCreateStockMovementMutation();
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as never,
     defaultValues: {
       movement_type: 'restock',
       product: preselectedProductId ? String(preselectedProductId) : '',
@@ -80,7 +80,7 @@ export function StockMovementModal({ open, onOpenChange, preselectedProductId }:
           <div className="space-y-1.5">
             <Label>Product *</Label>
             <Select
-              onValueChange={(v) => setValue('product', v)}
+              onValueChange={(v) => v && setValue('product', v)}
               defaultValue={preselectedProductId ? String(preselectedProductId) : undefined}
             >
               <SelectTrigger>

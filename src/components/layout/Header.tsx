@@ -28,27 +28,27 @@ export function Header() {
   }
 
   return (
-    <header className="h-14 flex items-center border-b border-border bg-card px-4 gap-3 shrink-0">
-      <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground" />
-      <Separator orientation="vertical" className="h-5" />
+    <header className="h-14 flex items-center border-b border-border/60 bg-card/80 glass px-4 gap-3 shrink-0 sticky top-0 z-10">
+      <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors duration-200" />
+      <Separator orientation="vertical" className="h-5 opacity-40" />
       <div className="flex-1" />
 
       <DropdownMenu>
         <DropdownMenuTrigger
-          className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent transition-colors outline-none"
+          className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 hover:bg-accent/80 transition-all duration-200 outline-none press"
         >
-          <Avatar className="h-7 w-7">
+          <Avatar className="h-7 w-7 ring-2 ring-border/50 transition-all duration-200 hover:ring-primary/20">
             <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
               {initials}
             </AvatarFallback>
           </Avatar>
           <div className="text-left hidden sm:block">
             <p className="text-xs font-medium text-foreground leading-none">{email ?? 'User'}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-[0.65rem] text-muted-foreground mt-0.5">
               {role ? ROLE_LABELS[role as UserRole] : ''}
             </p>
           </div>
-          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+          <ChevronDown className="h-3 w-3 text-muted-foreground transition-transform duration-200" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem disabled>
