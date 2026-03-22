@@ -12,6 +12,7 @@ import {
   BarChart3,
   ClipboardList,
   ShoppingCart,
+  Users,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -81,6 +82,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Reports', icon: BarChart3, to: '/reports', permission: 'reports' },
       { label: 'Audit Logs', icon: ClipboardList, to: '/audit', permission: 'audit' },
+      { label: 'Users', icon: Users, to: '/users', permission: 'users_management' },
     ],
   },
 ];

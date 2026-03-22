@@ -20,7 +20,8 @@ type Permission =
   | 'ticket_list'
   | 'reports'
   | 'audit'
-  | 'sales';
+  | 'sales'
+  | 'users_management';
 
 const PERMISSIONS: Record<UserRole, Permission[]> = {
   owner: [
@@ -37,6 +38,7 @@ const PERMISSIONS: Record<UserRole, Permission[]> = {
     'reports',
     'audit',
     'sales',
+    'users_management',
   ],
   manager: [
     'dashboard',
@@ -52,6 +54,7 @@ const PERMISSIONS: Record<UserRole, Permission[]> = {
     'reports',
     'audit',
     'sales',
+    'users_management',
   ],
   cashier: [
     'products',

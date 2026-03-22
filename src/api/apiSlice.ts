@@ -4,6 +4,7 @@ import type {
   PaginatedResponse,
   DashboardSummary,
   AuditLog,
+  ClubUser,
   Category,
   Product,
   StockMovement,
@@ -83,8 +84,7 @@ export const apiSlice = createApi({
     'TicketSales',
     'Tickets',
     'Sales',
-    'Reports',
-  ],
+    'Reports',    'ClubUsers',  ],
   endpoints: (builder) => ({
     // ─── Core ─────────────────────────────────────────────────────────────
     getDashboard: builder.query<DashboardSummary, void>({
@@ -94,6 +94,20 @@ export const apiSlice = createApi({
     getAuditLogs: builder.query<PaginatedResponse<AuditLog>, Record<string, string>>({
       query: (params) => ({ url: '/api/core/audit-logs/', params }),
       providesTags: ['AuditLogs'],
+    }),
+
+    // ─── Club Users ───────────────────────────────────────────────────────
+    getClubUsers: builder.query<PaginatedResponse<ClubUser>, Record<string, string>>({
+      query: (params) => ({ url: '/api/accounts/users/', params }),
+      providesTags: ['ClubUsers'],
+    }),
+    createClubUser: builder.mutation<ClubUser, { email: string; username: string; password: string; role: string }>({
+      query: (body) => ({ url: '/api/accounts/users/', method: 'POST', body }),
+      invalidatesTags: ['ClubUsers'],
+    }),
+    updateClubUser: builder.mutation<ClubUser, { id: number; role?: string; is_active?: boolean }>({
+      query: ({ id, ...body }) => ({ url: `/api/accounts/users/${id}/`, method: 'PATCH', body }),
+      invalidatesTags: ['ClubUsers'],
     }),
 
     // ─── Inventory – Categories ────────────────────────────────────────────
@@ -303,6 +317,9 @@ export const apiSlice = createApi({
 export const {
   useGetDashboardQuery,
   useGetAuditLogsQuery,
+  useGetClubUsersQuery,
+  useCreateClubUserMutation,
+  useUpdateClubUserMutation,
   useGetCategoriesQuery,
   useCreateCategoryMutation,
   useUpdateCategoryMutation,

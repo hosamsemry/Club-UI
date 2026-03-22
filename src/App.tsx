@@ -16,6 +16,7 @@ import { EntryDaysPage } from '@/features/tickets/EntryDaysPage';
 import { SalesPage } from '@/features/sales/SalesPage';
 import { ReportsPage } from '@/features/reports/ReportsPage';
 import { AuditPage } from '@/features/audit/AuditPage';
+import { UsersPage } from '@/features/users/UsersPage';
 import { useAppSelector } from '@/app/hooks';
 
 function ProtectedRoute() {
@@ -57,6 +58,7 @@ export default function App() {
               {/* Management */}
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/audit" element={<AuditPage />} />
+              <Route path="/users" element={<UsersPage />} />
 
               {/* Catch-all */}
               <Route path="*" element={<Navigate to="/dashboard" replace />} />

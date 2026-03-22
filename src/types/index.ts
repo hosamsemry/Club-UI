@@ -200,6 +200,16 @@ export interface AuditLog {
   created_at: string;
 }
 
+// ─── Club Users ───────────────────────────────────────────────────────────────
+export interface ClubUser {
+  id: number;
+  email: string;
+  username: string;
+  role: UserRole;
+  is_active: boolean;
+  date_joined: string;
+}
+
 // ─── Revenue ─────────────────────────────────────────────────────────────────
 export type RevenueField = 'tickets' | 'products' | 'events';
 
