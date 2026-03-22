@@ -14,7 +14,7 @@ import {
   Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious,
 } from '@/components/ui/pagination';
 import { PageHeader } from '@/components/common/PageHeader';
-import { StatusBadge, BooleanBadge } from '@/components/common/StatusBadge';
+import { BooleanBadge } from '@/components/common/StatusBadge';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
 import { ProductFormSheet } from './ProductFormSheet';
@@ -97,7 +97,7 @@ export function ProductsPage() {
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
-        <Select value={categoryFilter} onValueChange={(v) => { setCategoryFilter(v === 'all' ? '' : v); setPage(1); }}>
+        <Select value={categoryFilter} onValueChange={(v) => { setCategoryFilter(v === 'all' || !v ? '' : v); setPage(1); }}>
           <SelectTrigger className="w-44">
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
@@ -108,7 +108,7 @@ export function ProductsPage() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={activeFilter} onValueChange={(v) => { setActiveFilter(v === 'all' ? '' : v); setPage(1); }}>
+        <Select value={activeFilter} onValueChange={(v) => { setActiveFilter(v === 'all' || !v ? '' : v); setPage(1); }}>
           <SelectTrigger className="w-36">
             <SelectValue placeholder="All Statuses" />
           </SelectTrigger>
