@@ -7,7 +7,7 @@ import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
 import { useAppDispatch } from '@/app/hooks';
 import { loginSuccess } from '@/features/auth/authSlice';
@@ -61,85 +61,335 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Ambient background glow */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/[0.03] rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/[0.02] rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.015] rounded-full blur-3xl" />
-      </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
-      <div className="w-full max-w-sm relative z-10 animate-fade-in-up">
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center shadow-lg shadow-white/10 animate-float">
-            <span className="text-black font-bold text-sm tracking-tight">CM</span>
+        .login-root {
+          font-family: 'DM Sans', sans-serif;
+        }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.97); }
+          to   { opacity: 1; transform: scale(1); }
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes lineDraw {
+          from { transform: scaleX(0); }
+          to   { transform: scaleX(1); }
+        }
+
+        .anim-logo {
+          animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+          animation-delay: 0.05s;
+        }
+        .anim-card {
+          animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+          animation-delay: 0.15s;
+        }
+        .anim-footer {
+          animation: fadeIn 0.6s ease both;
+          animation-delay: 0.45s;
+        }
+        .anim-error {
+          animation: scaleIn 0.2s ease both;
+        }
+
+        .login-input {
+          background: transparent !important;
+          border: none !important;
+          border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+          border-radius: 0 !important;
+          color: #fff !important;
+          // padding-left:  !important;
+          padding-right: 0 !important;
+          height: 44px !important;
+          font-family: 'DM Sans', sans-serif !important;
+          font-size: 0.9rem !important;
+          transition: border-color 0.2s ease !important;
+          box-shadow: none !important;
+          outline: none !important;
+        }
+        .login-input::placeholder {
+          color: rgba(255,255,255,0.18) !important;
+        }
+        .login-input:focus {
+          border-bottom-color: rgba(255,255,255,0.5) !important;
+          box-shadow: none !important;
+        }
+        .login-input.error {
+          border-bottom-color: rgba(239,68,68,0.6) !important;
+        }
+
+        .submit-btn {
+          height: 44px !important;
+          background: #fff !important;
+          color: #000 !important;
+          font-family: 'DM Sans', sans-serif !important;
+          font-weight: 500 !important;
+          font-size: 0.875rem !important;
+          letter-spacing: 0.02em !important;
+          border-radius: 6px !important;
+          transition: background 0.15s ease, opacity 0.15s ease !important;
+          border: none !important;
+        }
+        .submit-btn:hover:not(:disabled) {
+          background: rgba(255,255,255,0.88) !important;
+        }
+        .submit-btn:disabled {
+          opacity: 0.5 !important;
+        }
+
+        .logo-mark {
+          width: 36px;
+          height: 36px;
+          border: 1.5px solid rgba(255,255,255,0.7);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        }
+        .logo-mark::before {
+          content: '';
+          position: absolute;
+          inset: 5px;
+          border: 1px solid rgba(255,255,255,0.25);
+          border-radius: 3px;
+        }
+        .logo-mark span {
+          font-family: 'DM Mono', monospace;
+          font-size: 9px;
+          font-weight: 500;
+          color: #fff;
+          letter-spacing: 0.05em;
+          position: relative;
+          z-index: 1;
+        }
+
+        .divider-line {
+          height: 1px;
+          background: rgba(255,255,255,0.06);
+          margin: 0 -24px;
+        }
+      `}</style>
+
+      <div
+        className="login-root"
+        style={{
+          minHeight: '100vh',
+          background: '#0C0C0C',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Subtle grid overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)
+            `,
+            backgroundSize: '48px 48px',
+            pointerEvents: 'none',
+          }}
+        />
+        {/* Vignette */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(ellipse at center, transparent 40%, #0C0C0C 100%)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div style={{ width: '100%', maxWidth: '360px', position: 'relative', zIndex: 10 }}>
+
+          {/* Logo */}
+          <div className="anim-logo" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '36px' }}>
+            <div className="logo-mark">
+              <span>CM</span>
+            </div>
+            <div>
+              <p style={{ color: '#fff', fontSize: '0.875rem', fontWeight: 500, letterSpacing: '0.01em', lineHeight: 1.2 }}>
+                Club Management
+              </p>
+              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: '1px' }}>
+                Staff Portal
+              </p>
+            </div>
           </div>
-          <span className="text-white font-semibold text-lg tracking-tight">Club Management</span>
-        </div>
 
-        <Card className="border border-white/[0.08] shadow-2xl shadow-black/50 bg-[#141414]">
-          <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-xl text-white">Sign In</CardTitle>
-            <CardDescription className="text-white/40">Enter your credentials to access the dashboard</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {serverError && (
-                <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm border border-destructive/20 animate-scale-in">
-                  {serverError}
-                </div>
-              )}
+          {/* Card */}
+          <div
+            className="anim-card"
+            style={{
+              background: '#161616',
+              border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '12px',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Card header */}
+            <div style={{ padding: '28px 28px 24px' }}>
+              <h1 style={{
+                color: '#fff',
+                fontSize: '1.5rem',
+                fontWeight: 300,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.2,
+                marginBottom: '4px',
+              }}>
+                Sign in
+              </h1>
+              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', letterSpacing: '0.01em' }}>
+                Enter your credentials to continue
+              </p>
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-white/70 text-xs font-medium">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  {...register('email')}
-                  className={`bg-white/[0.06] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:ring-white/10 transition-all duration-200 h-11 ${errors.email ? 'border-destructive' : ''}`}
-                />
-                {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
-              </div>
+            <div className="divider-line" style={{ margin: '0 28px' }} />
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-white/70 text-xs font-medium">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  {...register('password')}
-                  className={`bg-white/[0.06] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:ring-white/10 transition-all duration-200 h-11 ${errors.password ? 'border-destructive' : ''}`}
-                />
-                {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
-              </div>
+            {/* Card body */}
+            <div style={{ padding: '24px 28px 28px' }}>
+              <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-              <Button
-                type="submit"
-                className="w-full h-11 bg-white text-black hover:bg-white/90 font-semibold transition-all duration-200 press mt-2"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center gap-2">
-                    <span className="h-4 w-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                    Signing in…
-                  </span>
-                ) : (
-                  'Sign In'
+                {serverError && (
+                  <div
+                    className="anim-error"
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '6px',
+                      background: 'rgba(239,68,68,0.08)',
+                      border: '1px solid rgba(239,68,68,0.2)',
+                      color: 'rgb(239,68,68)',
+                      fontSize: '0.8rem',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {serverError}
+                  </div>
                 )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
 
-        <p className="text-center text-white/20 text-xs mt-8 tracking-wide">
-          Staff access only · Contact your manager for credentials
-        </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label
+                    htmlFor="email"
+                    style={{
+                      color: 'rgba(255,255,255,0.4)',
+                      fontSize: '0.7rem',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      fontWeight: 500,
+                    }}
+                  >
+                    Email
+                  </label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    {...register('email')}
+                    className={`login-input ${errors.email ? 'error' : ''}`}
+                  />
+                  {errors.email && (
+                    <p style={{ color: 'rgb(239,68,68)', fontSize: '0.72rem', marginTop: '2px' }}>
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label
+                    htmlFor="password"
+                    style={{
+                      color: 'rgba(255,255,255,0.4)',
+                      fontSize: '0.7rem',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      fontWeight: 500,
+                    }}
+                  >
+                    Password
+                  </label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    {...register('password')}
+                    className={`login-input ${errors.password ? 'error' : ''}`}
+                  />
+                  {errors.password && (
+                    <p style={{ color: 'rgb(239,68,68)', fontSize: '0.72rem', marginTop: '2px' }}>
+                      {errors.password.message}
+                    </p>
+                  )}
+                </div>
+
+                <Button
+                  type="submit"
+                  className="submit-btn"
+                  style={{ width: '100%', marginTop: '4px' }}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span
+                        style={{
+                          width: '14px',
+                          height: '14px',
+                          border: '1.5px solid rgba(0,0,0,0.2)',
+                          borderTopColor: '#000',
+                          borderRadius: '50%',
+                          animation: 'spin 0.7s linear infinite',
+                          display: 'inline-block',
+                        }}
+                      />
+                      Signing in…
+                    </span>
+                  ) : (
+                    'Continue'
+                  )}
+                </Button>
+
+              </form>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <p
+            className="anim-footer"
+            style={{
+              textAlign: 'center',
+              color: 'rgba(255,255,255,0.18)',
+              fontSize: '0.7rem',
+              letterSpacing: '0.04em',
+              marginTop: '24px',
+            }}
+          >
+            Staff access only · Contact your manager for credentials
+          </p>
+
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
