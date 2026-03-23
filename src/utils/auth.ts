@@ -4,25 +4,25 @@ const ACCESS_KEY = 'cm_access';
 const REFRESH_KEY = 'cm_refresh';
 
 export function getAccessToken(): string | null {
-  return localStorage.getItem(ACCESS_KEY);
+  return sessionStorage.getItem(ACCESS_KEY);
 }
 
 export function getRefreshToken(): string | null {
-  return localStorage.getItem(REFRESH_KEY);
+  return sessionStorage.getItem(REFRESH_KEY);
 }
 
 export function setTokens(access: string, refresh: string): void {
-  localStorage.setItem(ACCESS_KEY, access);
-  localStorage.setItem(REFRESH_KEY, refresh);
+  sessionStorage.setItem(ACCESS_KEY, access);
+  sessionStorage.setItem(REFRESH_KEY, refresh);
 }
 
 export function setAccessToken(access: string): void {
-  localStorage.setItem(ACCESS_KEY, access);
+  sessionStorage.setItem(ACCESS_KEY, access);
 }
 
 export function clearTokens(): void {
-  localStorage.removeItem(ACCESS_KEY);
-  localStorage.removeItem(REFRESH_KEY);
+  sessionStorage.removeItem(ACCESS_KEY);
+  sessionStorage.removeItem(REFRESH_KEY);
 }
 
 interface JwtPayload {
