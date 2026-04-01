@@ -6,8 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
 import { useAppDispatch } from '@/app/hooks';
 import { loginSuccess } from '@/features/auth/authSlice';
