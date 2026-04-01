@@ -21,6 +21,8 @@ import type {
   TopProductsResponse,
   DailyReport,
   RevenueReport,
+  RegisterPayload,
+  AuthTokens,
 } from '@/types';
 import { getAccessToken, getRefreshToken, setAccessToken } from '@/utils/auth';
 import { logout, tokenUpdated } from '@/features/auth/authSlice';
@@ -85,7 +87,10 @@ export const apiSlice = createApi({
     'Tickets',
     'Sales',
     'Reports',    'ClubUsers',  ],
-  endpoints: (builder) => ({
+  endpoints: (builder) => ({    // ─── Auth (public) ─────────────────────────────────────────────────
+    registerClub: builder.mutation<AuthTokens, RegisterPayload>({
+      query: (body) => ({ url: '/api/accounts/register/', method: 'POST', body }),
+    }),
     // ─── Core ─────────────────────────────────────────────────────────────
     getDashboard: builder.query<DashboardSummary, void>({
       query: () => '/api/core/dashboard/',
@@ -315,6 +320,7 @@ export const apiSlice = createApi({
 });
 
 export const {
+  useRegisterClubMutation,
   useGetDashboardQuery,
   useGetAuditLogsQuery,
   useGetClubUsersQuery,
