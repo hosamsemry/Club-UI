@@ -1,6 +1,18 @@
 // ─── Auth ────────────────────────────────────────────────────────────────────
 export type UserRole = 'owner' | 'manager' | 'cashier' | 'staff';
 
+export interface RegisterPayload {
+  club_name: string;
+  email: string;
+  username: string;
+  password: string;
+}
+
+export interface AuthTokens {
+  access: string;
+  refresh: string;
+}
+
 export interface AuthState {
   access: string | null;
   refresh: string | null;
@@ -149,37 +161,61 @@ export interface Ticket {
 
 // ─── Sales ───────────────────────────────────────────────────────────────────
 export interface SaleItem {
-  product_id: number;
+  id?: number;
+  product?: number;
+  product_id?: number;
+  product_name?: string;
+  product_sku?: string;
   quantity: number;
-  unit_price?: string;
+  unit_price: string;
+  subtotal?: string;
 }
 
 export interface Sale {
   id: number;
+  status: string;
   total_amount: string;
-  note: string;
   created_at: string;
+  created_by_email?: string;
   items: SaleItem[];
 }
 
 export interface DailySummary {
   date: string;
-  total_sales: string;
-  total_items: number;
+  total_sales?: string;
+  total_items?: number;
+  total_revenue?: string;
+  sales_count?: number;
+  by_cashier?: {
+    created_by_id: number;
+    created_by__email: string;
+    revenue: string;
+    count: number;
+  }[];
 }
 
 export interface DailyProfit {
   date: string;
-  revenue: string;
-  cost: string;
-  profit: string;
+  revenue?: string;
+  cost?: string;
+  profit?: string;
+  total_revenue?: string;
+  total_cost?: string;
+  total_profit?: string;
 }
 
 export interface TopProduct {
   product_id: number;
   product_name: string;
-  total_quantity: number;
+  product_sku?: string;
+  total_quantity?: number;
+  total_quantity_sold?: number;
   total_revenue: string;
+}
+
+export interface TopProductsResponse {
+  date: string;
+  results: TopProduct[];
 }
 
 // ─── Reporting ───────────────────────────────────────────────────────────────
