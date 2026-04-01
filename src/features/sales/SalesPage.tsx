@@ -15,10 +15,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
+import { useAppSelector } from '@/app/hooks';
 import { useGetSalesQuery, useRefundSaleMutation } from '@/api/apiSlice';
 import { formatCurrency, formatDateTime } from '@/utils/format';
 import type { Sale } from '@/types';
 import { toast } from 'sonner';
+import { RevenueCalculator } from '../reports/RevenueCalculator';
 
 const refundSchema = z.object({ note: z.string().min(1, 'Note is required') });
 type RefundFormValues = z.infer<typeof refundSchema>;
@@ -70,8 +72,10 @@ function RefundDialog({ open, onOpenChange, sale }: { open: boolean; onOpenChang
 export function SalesPage() {
   const [page, setPage] = useState(1);
   const [refundTarget, setRefundTarget] = useState<Sale | null>(null);
+  const role = useAppSelector((state) => state.auth.role);
   const { data, isLoading, error } = useGetSalesQuery({ page: String(page) });
   const totalPages = data ? Math.ceil(data.count / 20) : 1;
+  const canViewRevenueCalculator = role === 'owner' || role === 'manager';
 
   return (
     <div>
@@ -146,7 +150,11 @@ export function SalesPage() {
           </Pagination>
         </div>
       )}
-
+      {canViewRevenueCalculator && (
+        <div className="my-6">
+          <RevenueCalculator />
+        </div>
+      )}
       <RefundDialog open={!!refundTarget} onOpenChange={(o) => !o && setRefundTarget(null)} sale={refundTarget} />
     </div>
   );
