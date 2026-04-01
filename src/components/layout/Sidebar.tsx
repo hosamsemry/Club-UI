@@ -108,8 +108,8 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-4 py-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-white to-white/80 flex items-center justify-center shrink-0 shadow-sm transition-transform duration-200 hover:scale-105">
-            <span className="text-black text-xs font-bold tracking-tight">CM</span>
+          <div className="w-8 h-8 rounded-lg  flex items-center justify-center shrink-0 shadow-sm transition-transform duration-200 hover:scale-105">
+           <img src="logo.png" alt="Logo"  height={70} style={{maxWidth:"70px"}} />
           </div>
           <span className="font-semibold text-sidebar-accent-foreground text-sm truncate group-data-[collapsible=icon]:hidden">
             Club Management

@@ -149,34 +149,6 @@ export function LoginPage() {
         .submit-btn:disabled {
           opacity: 0.5 !important;
         }
-
-        .logo-mark {
-          width: 36px;
-          height: 36px;
-          border: 1.5px solid rgba(255,255,255,0.7);
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
-        }
-        .logo-mark::before {
-          content: '';
-          position: absolute;
-          inset: 5px;
-          border: 1px solid rgba(255,255,255,0.25);
-          border-radius: 3px;
-        }
-        .logo-mark span {
-          font-family: 'DM Mono', monospace;
-          font-size: 9px;
-          font-weight: 500;
-          color: #fff;
-          letter-spacing: 0.05em;
-          position: relative;
-          z-index: 1;
-        }
-
         .divider-line {
           height: 1px;
           background: rgba(255,255,255,0.06);
@@ -223,9 +195,9 @@ export function LoginPage() {
         <div style={{ width: '100%', maxWidth: '360px', position: 'relative', zIndex: 10 }}>
 
           {/* Logo */}
-          <div className="anim-logo" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '36px' }}>
-            <div className="logo-mark">
-              <span>CM</span>
+          <div className="anim-logo" style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '36px', width:'250px' }}>
+            <div>
+              <img src="logo.png" alt="Logo" width={100} height={100} />
             </div>
             <div>
               <p style={{ color: '#fff', fontSize: '0.875rem', fontWeight: 500, letterSpacing: '0.01em', lineHeight: 1.2 }}>
