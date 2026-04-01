@@ -18,7 +18,7 @@ import type {
   Sale,
   DailySummary,
   DailyProfit,
-  TopProduct,
+  TopProductsResponse,
   DailyReport,
   RevenueReport,
 } from '@/types';
@@ -287,7 +287,7 @@ export const apiSlice = createApi({
     getDailyProfit: builder.query<DailyProfit, { date?: string }>({
       query: (params) => ({ url: '/api/sales/daily-profit/', params }),
     }),
-    getTopProducts: builder.query<TopProduct[], { date?: string }>({
+    getTopProducts: builder.query<TopProductsResponse, { date?: string }>({
       query: (params) => ({ url: '/api/sales/top-products/', params }),
     }),
 
