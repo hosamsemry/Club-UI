@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -193,7 +193,7 @@ export function LoginPage() {
         <div style={{ width: '100%', maxWidth: '360px', position: 'relative', zIndex: 10 }}>
 
           {/* Logo */}
-          <div className="anim-logo" style={{ display: 'flex', alignItems: 'center', gap: '0px', marginBottom: '36px', width:'250px' }}>
+          <div className="anim-logo" style={{ display: 'flex', alignItems: 'center', gap: '0px', marginBottom: '26px', width:'250px' }}>
             <div>
               <img src="logo.png" alt="Logo" width={100} height={100} />
             </div>
@@ -344,18 +344,41 @@ export function LoginPage() {
           </div>
 
           {/* Footer */}
-          <p
+          <div
             className="anim-footer"
             style={{
               textAlign: 'center',
-              color: 'rgba(255,255,255,0.18)',
-              fontSize: '0.7rem',
-              letterSpacing: '0.04em',
               marginTop: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '10px',
             }}
           >
-            Staff access only · Contact your manager for credentials
-          </p>
+            <p
+              style={{
+                color: 'rgba(255,255,255,0.4)',
+                fontSize: '0.65rem',
+                letterSpacing: '0.04em',
+              }}
+            >
+              Staff access only · Contact your manager for credentials
+            </p>
+            <Link
+              to="/register"
+              style={{
+                color: 'rgba(255,255,255,0.6)',
+                fontSize: '.9rem',
+                textDecoration: 'none',
+                letterSpacing: '0.01em',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,1)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+            >
+              Create a new club &rarr;
+            </Link>
+          </div>
 
         </div>
       </div>
