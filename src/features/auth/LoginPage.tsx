@@ -193,7 +193,7 @@ export function LoginPage() {
         <div style={{ width: '100%', maxWidth: '360px', position: 'relative', zIndex: 10 }}>
 
           {/* Logo */}
-          <div className="anim-logo" style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '36px', width:'250px' }}>
+          <div className="anim-logo" style={{ display: 'flex', alignItems: 'center', gap: '0px', marginBottom: '36px', width:'250px' }}>
             <div>
               <img src="logo.png" alt="Logo" width={100} height={100} />
             </div>
@@ -201,7 +201,7 @@ export function LoginPage() {
               <p style={{ color: '#fff', fontSize: '0.875rem', fontWeight: 500, letterSpacing: '0.01em', lineHeight: 1.2 }}>
                 Club Management
               </p>
-              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: '1px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: '3px' }}>
                 Staff Portal
               </p>
             </div>
