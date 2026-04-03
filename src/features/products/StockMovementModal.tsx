@@ -31,6 +31,7 @@ const MOVEMENT_TYPES: { value: MovementType; label: string }[] = [
   { value: 'restock', label: 'Restock' },
   { value: 'adjustment', label: 'Adjustment' },
   { value: 'refund', label: 'Refund' },
+  { value: 'sale', label: 'Sale' },
 ];
 
 export function StockMovementModal({ open, onOpenChange, preselectedProductId }: Props) {
