@@ -504,7 +504,7 @@ export function SalesPage() {
               <div className="space-y-1.5">
                 <Label className="text-xs">Status</Label>
                 <Select value={statusFilter} onValueChange={(value) => {
-                  setStatusFilter(value);
+                  setStatusFilter(value ? (value as string) : "");
                   setPage(1);
                 }}>
                   <SelectTrigger className="w-full">
@@ -548,7 +548,7 @@ export function SalesPage() {
               <div className="space-y-1.5">
                 <Label className="text-xs">Sort By</Label>
                 <Select value={ordering} onValueChange={(value) => {
-                  setOrdering(value);
+                  setOrdering(value ? (value as string) : "");
                   setPage(1);
                 }}>
                   <SelectTrigger className="w-full">
@@ -623,7 +623,7 @@ export function SalesPage() {
                         <TableCell>
                           <StatusBadge status={sale.status} />
                         </TableCell>
-                        <TableCell className="max-w-[220px] truncate text-sm text-muted-foreground">
+                        <TableCell className="max-w-55 truncate text-sm text-muted-foreground">
                           {sale.created_by_email ?? '—'}
                         </TableCell>
                         <TableCell className="text-right font-medium">{getSaleItemCount(sale)}</TableCell>
