@@ -15,6 +15,7 @@ import { TicketListPage } from '@/features/tickets/TicketListPage';
 import { TicketTypesPage } from '@/features/tickets/TicketTypesPage';
 import { EntryDaysPage } from '@/features/tickets/EntryDaysPage';
 import { SalesPage } from '@/features/sales/SalesPage';
+import { NewSalePage } from '@/features/sales/NewSalePage';
 import { ReportsPage } from '@/features/reports/ReportsPage';
 import { AuditPage } from '@/features/audit/AuditPage';
 import { UsersPage } from '@/features/users/UsersPage';
@@ -43,6 +44,7 @@ export default function App() {
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/products/categories" element={<CategoriesPage />} />
               <Route path="/products/stock-movements" element={<StockMovementsPage />} />
+              <Route path="/products/sell" element={<NewSalePage />} />
 
               {/* Reservations */}
               <Route path="/reservations" element={<ReservationsPage />} />
