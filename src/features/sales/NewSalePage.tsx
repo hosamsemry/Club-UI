@@ -1,20 +1,19 @@
 import { useState, useDeferredValue, useRef, useEffect, useCallback } from 'react';
-import { Minus, Package, Plus, ShoppingCart, Trash2 } from 'lucide-react';
+import { Minus, Package, Plus, Search, ShoppingCart, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
 import { useGetProductsQuery, useGetCategoriesQuery, useCreateSaleMutation } from '@/api/apiSlice';
 import { formatCurrency } from '@/utils/format';
 import type { Product } from '@/types';
 import { toast } from 'sonner';
-import { Search } from 'lucide-react';
 
 const PAGE_SIZE = 24;
 
@@ -288,88 +287,149 @@ export function NewSalePage() {
 
   const cartQtyMap = Object.fromEntries(cart.map((i) => [i.product.id, i.quantity]));
 
-  return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col gap-0">
-      <div className="shrink-0 px-1 pb-4">
-        <PageHeader
-          title="New Sale"
-          description="Select products to add to the cart, then complete the sale."
-        />
+  // ── Shared sub-sections ────────────────────────────────────────────────
+  const productBrowser = (
+    <div className="flex flex-col gap-3">
+      {/* Search + Category chips */}
+      <div className="space-y-3">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name or SKU…"
+            className="pl-9"
+            autoFocus
+          />
+        </div>
+        <CategoryChips selectedId={categoryId} onSelect={setCategoryId} />
       </div>
 
-      <div className="flex min-h-0 flex-1 gap-5">
-        {/* ── Product browser ─────────────────────────────────────────── */}
-        <div className="flex min-w-0 flex-1 flex-col gap-3 overflow-hidden">
-          {/* Search + Category chips */}
-          <div className="shrink-0 space-y-3">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by name or SKU…"
-                className="pl-9"
-                autoFocus
-              />
-            </div>
-            <CategoryChips selectedId={categoryId} onSelect={setCategoryId} />
+      {/* Product grid */}
+      <div className="rounded-xl border border-border/60 p-4">
+        {isLoading && page === 1 ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+              <Skeleton key={i} className="h-28 rounded-xl" />
+            ))}
           </div>
-
-          {/* Product grid */}
-          <ScrollArea className="flex-1 rounded-xl border border-border/60">
-            <div className="p-4">
-              {isLoading && page === 1 ? (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                  {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-                    <Skeleton key={i} className="h-28 rounded-xl" />
-                  ))}
-                </div>
-              ) : accumulatedProducts.length === 0 ? (
-                <div className="flex min-h-52 flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <Package className="h-8 w-8 opacity-25" />
-                  <p>{deferredSearch || categoryId ? 'No products match your filters.' : 'No products in stock.'}</p>
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                    {accumulatedProducts.map((product) => (
-                      <ProductTile
-                        key={product.id}
-                        product={product}
-                        cartQty={cartQtyMap[product.id] ?? 0}
-                        onAdd={addToCart}
-                      />
-                    ))}
-                    {/* Skeleton tiles appended during next-page fetch */}
-                    {isFetching &&
-                      page > 1 &&
-                      Array.from({ length: 8 }).map((_, i) => (
-                        <Skeleton key={`sk-${i}`} className="h-28 rounded-xl" />
-                      ))}
-                  </div>
-
-                  {hasMore && !isFetching && (
-                    <div className="mt-4 flex justify-center">
-                      <Button variant="outline" size="sm" onClick={handleLoadMore}>
-                        Load more ({data!.count - accumulatedProducts.length} remaining)
-                      </Button>
-                    </div>
-                  )}
-
-                  {!hasMore && data && data.count > PAGE_SIZE && (
-                    <p className="mt-4 text-center text-xs text-muted-foreground">
-                      All {data.count} products loaded
-                    </p>
-                  )}
-                </>
-              )}
+        ) : accumulatedProducts.length === 0 ? (
+          <div className="flex min-h-52 flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+            <Package className="h-8 w-8 opacity-25" />
+            <p>{deferredSearch || categoryId ? 'No products match your filters.' : 'No products in stock.'}</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              {accumulatedProducts.map((product) => (
+                <ProductTile
+                  key={product.id}
+                  product={product}
+                  cartQty={cartQtyMap[product.id] ?? 0}
+                  onAdd={addToCart}
+                />
+              ))}
+              {isFetching && page > 1 &&
+                Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton key={`sk-${i}`} className="h-28 rounded-xl" />
+                ))}
             </div>
-          </ScrollArea>
+
+            {hasMore && !isFetching && (
+              <div className="mt-4 flex justify-center">
+                <Button variant="outline" size="sm" onClick={handleLoadMore}>
+                  Load more ({data!.count - accumulatedProducts.length} remaining)
+                </Button>
+              </div>
+            )}
+            {!hasMore && data && data.count > PAGE_SIZE && (
+              <p className="mt-4 text-center text-xs text-muted-foreground">
+                All {data.count} products loaded
+              </p>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  const cartPanel = (
+    <>
+      {/* Items */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="space-y-2 p-3">
+          {cart.length === 0 ? (
+            <div className="flex min-h-40 flex-col items-center justify-center gap-2 text-center text-sm text-muted-foreground">
+              <ShoppingCart className="h-8 w-8 opacity-20" />
+              <p>Tap a product to add it here</p>
+            </div>
+          ) : (
+            cart.map((item) => (
+              <CartRow
+                key={item.product.id}
+                item={item}
+                onQtyChange={setCartItemQty}
+                onRemove={removeFromCart}
+              />
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="shrink-0 space-y-3 border-t border-border/60 p-4">
+        {error && <ErrorDisplay error={error} />}
+
+        <div className="space-y-1.5">
+          <Label htmlFor="sale-note" className="text-xs">Note (optional)</Label>
+          <Textarea
+            id="sale-note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="e.g. table 4, member discount…"
+            rows={2}
+            className="resize-none text-sm"
+          />
         </div>
 
-        {/* ── Cart ─────────────────────────────────────────────────────── */}
-        <div className="flex w-80 shrink-0 flex-col rounded-xl border border-border/60 bg-card">
-          {/* Header */}
+        <Separator />
+
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Total</span>
+          <span className="text-xl font-bold tracking-tight">{formatCurrency(cartTotal)}</span>
+        </div>
+
+        <Button
+          className="w-full"
+          size="lg"
+          onClick={handleSubmit}
+          disabled={isSubmitting || cart.length === 0}
+        >
+          {isSubmitting ? 'Processing…' : `Complete Sale · ${formatCurrency(cartTotal)}`}
+        </Button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="space-y-4">
+      <PageHeader
+        title="New Sale"
+        description="Select products to add to the cart, then complete the sale."
+      />
+
+      {/* ── Desktop: side-by-side, cart sticky ─────────────────────────── */}
+      <div className="hidden lg:flex items-start gap-5">
+        {/* Products — scrolls with the page */}
+        <div className="min-w-0 flex-1">
+          {productBrowser}
+        </div>
+
+        {/* Cart — sticks in viewport as products scroll */}
+        <div
+          className="flex w-80 shrink-0 flex-col rounded-xl border border-border/60 bg-card sticky top-0"
+          style={{ maxHeight: 'calc(100vh - 56px - 64px)' }}
+        >
           <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
@@ -384,67 +444,64 @@ export function NewSalePage() {
               <button
                 type="button"
                 onClick={clearCart}
-                className="text-xs text-muted-foreground underline-offset-2 hover:text-destructive hover:underline transition-colors"
+                className="text-xs text-muted-foreground underline-offset-2 transition-colors hover:text-destructive hover:underline"
               >
                 Clear
               </button>
             )}
           </div>
-
-          {/* Items */}
-          <ScrollArea className="flex-1">
-            <div className="space-y-2 p-3">
-              {cart.length === 0 ? (
-                <div className="flex min-h-40 flex-col items-center justify-center gap-2 text-center text-sm text-muted-foreground">
-                  <ShoppingCart className="h-8 w-8 opacity-20" />
-                  <p>Tap a product to add it here</p>
-                </div>
-              ) : (
-                cart.map((item) => (
-                  <CartRow
-                    key={item.product.id}
-                    item={item}
-                    onQtyChange={setCartItemQty}
-                    onRemove={removeFromCart}
-                  />
-                ))
-              )}
-            </div>
-          </ScrollArea>
-
-          {/* Footer */}
-          <div className="shrink-0 space-y-3 border-t border-border/60 p-4">
-            {error && <ErrorDisplay error={error} />}
-
-            <div className="space-y-1.5">
-              <Label htmlFor="sale-note" className="text-xs">Note (optional)</Label>
-              <Textarea
-                id="sale-note"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="e.g. table 4, member discount…"
-                rows={2}
-                className="resize-none text-sm"
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Total</span>
-              <span className="text-xl font-bold tracking-tight">{formatCurrency(cartTotal)}</span>
-            </div>
-
-            <Button
-              className="w-full"
-              size="lg"
-              onClick={handleSubmit}
-              disabled={isSubmitting || cart.length === 0}
-            >
-              {isSubmitting ? 'Processing…' : `Complete Sale · ${formatCurrency(cartTotal)}`}
-            </Button>
-          </div>
+          {cartPanel}
         </div>
+      </div>
+
+      {/* ── Mobile: tabbed ────────────────────────────────────────────── */}
+      <div className="lg:hidden">
+        <Tabs defaultValue="products">
+          <TabsList className="w-full">
+            <TabsTrigger value="products" className="flex-1">
+              Products
+              {accumulatedProducts.length > 0 && (
+                <span className="ml-1.5 text-muted-foreground text-xs">({accumulatedProducts.length})</span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="cart" className="relative flex-1">
+              Cart
+              {cartItemCount > 0 && (
+                <Badge className="ml-1.5 h-5 min-w-5 px-1 text-[0.65rem]">{cartItemCount}</Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="products" className="mt-4">
+            {productBrowser}
+          </TabsContent>
+
+          <TabsContent value="cart" className="mt-4">
+            <div className="flex flex-col rounded-xl border border-border/60 bg-card">
+              <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-3.5">
+                <div className="flex items-center gap-2">
+                  <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">
+                    Cart
+                    {cartItemCount > 0 && (
+                      <span className="ml-1.5 text-muted-foreground">({cartItemCount} items)</span>
+                    )}
+                  </span>
+                </div>
+                {cart.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearCart}
+                    className="text-xs text-muted-foreground underline-offset-2 transition-colors hover:text-destructive hover:underline"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              {cartPanel}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
