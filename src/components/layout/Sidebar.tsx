@@ -57,6 +57,13 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    label: 'Sales',
+    items: [
+      { label: 'New Sale', icon: Package, to: '/products/sell', permission: 'sales' },
+      { label: 'Sales', icon: ShoppingCart, to: '/sales', permission: 'sales' },
+    ],
+  },
+  {
     label: 'Events',
     items: [
       { label: 'Reservations', icon: CalendarRange, to: '/reservations', permission: 'reservations' },
@@ -73,18 +80,11 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: 'Sales',
-    items: [
-      { label: 'New Sale', icon: Package, to: '/products/sell', permission: 'sales' },
-      { label: 'Sales', icon: ShoppingCart, to: '/sales', permission: 'sales' },
-    ],
-  },
-  {
     label: 'Management',
     items: [
       { label: 'Reports', icon: BarChart3, to: '/reports', permission: 'reports' },
       { label: 'Audit Logs', icon: ClipboardList, to: '/audit', permission: 'audit' },
-      { label: 'Users', icon: Users, to: '/users', permission: 'users_management' },
+      { label: 'Staff', icon: Users, to: '/users', permission: 'users_management' },
     ],
   },
 ];
