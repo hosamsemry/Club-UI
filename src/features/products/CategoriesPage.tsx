@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
-import { ErrorDisplay } from '@/components/common/ErrorDisplay';
+import { ErrorDisplay, extractMessage } from '@/components/common/ErrorDisplay';
 import {
   useGetCategoriesQuery,
   useCreateCategoryMutation,
@@ -102,8 +102,8 @@ export function CategoriesPage() {
       await deleteCategory(deleteTarget.id).unwrap();
       toast.success('Category deleted');
       setDeleteTarget(null);
-    } catch {
-      toast.error('Failed to delete category');
+    } catch (err) {
+      toast.error(extractMessage(err));
     }
   }
 

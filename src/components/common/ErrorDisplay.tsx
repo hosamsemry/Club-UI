@@ -6,7 +6,7 @@ interface ErrorDisplayProps {
   error: unknown;
 }
 
-function extractMessage(error: unknown): string {
+export function extractMessage(error: unknown): string {
   if (!error) return 'An error occurred.';
   const apiError = error as ApiError;
   const data = apiError.data;
