@@ -39,11 +39,11 @@ export function UsersPage() {
   return (
     <div>
       <PageHeader
-        title="Users"
+        title="Staff Management"
         description="Manage club members and their roles"
         actions={
           <Button size="sm" onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-1.5" /> Add User
+            <Plus className="h-4 w-4 mr-1.5" /> Add Staff Member
           </Button>
         }
       />
@@ -88,7 +88,7 @@ export function UsersPage() {
             ) : data?.results.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
-                  No users found
+                  No staff members found
                 </TableCell>
               </TableRow>
             ) : (
@@ -125,7 +125,7 @@ export function UsersPage() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">{data?.count ?? 0} users</p>
+          <p className="text-sm text-muted-foreground">{data?.count ?? 0} staff members</p>
           <Pagination>
             <PaginationContent>
               <PaginationItem>
