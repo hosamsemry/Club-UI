@@ -54,7 +54,6 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Products', icon: Package, to: '/products', permission: 'products' },
       { label: 'Categories', icon: Tag, to: '/products/categories', permission: 'categories' },
       { label: 'Stock Movements', icon: ArrowLeftRight, to: '/products/stock-movements', permission: 'stock_movements' },
-      { label: 'New Sale', icon: ShoppingBag, to: '/products/sell', permission: 'sales' },
     ],
   },
   {
@@ -76,6 +75,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Sales',
     items: [
+      { label: 'New Sale', icon: Package, to: '/products/sell', permission: 'sales' },
       { label: 'Sales', icon: ShoppingCart, to: '/sales', permission: 'sales' },
     ],
   },
