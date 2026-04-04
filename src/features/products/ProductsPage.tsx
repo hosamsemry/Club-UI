@@ -176,13 +176,17 @@ export function ProductsPage() {
                         <DropdownMenuItem onClick={() => openMovement(product.id)}>
                           <ArrowLeftRight className="h-4 w-4 mr-2" /> Stock Movement
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
-                          onClick={() => setDeleteTarget(product)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" /> Delete
-                        </DropdownMenuItem>
+                        {product.is_active && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => setDeleteTarget(product)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" /> Deactivate
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
