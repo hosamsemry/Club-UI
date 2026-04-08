@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type SetStateAction } from 'react';
 import { Plus, Search, MoreHorizontal, Pencil, ArrowLeftRight, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -152,7 +152,14 @@ export function ProductsPage() {
             ) : (
               data?.results.map((product) => (
                 <TableRow key={product.id} className="hover:bg-muted/30">
-                  <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell className="font-medium">
+                    {product.name}
+                    {product.is_best_seller && (
+                      <span className="ml-2 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                        🔥 Best Seller
+                      </span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-muted-foreground font-mono text-sm">{product.sku}</TableCell>
                   <TableCell className="text-muted-foreground">{product.category_name ?? '—'}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(product.selling_price)}</TableCell>
