@@ -65,6 +65,8 @@ export interface Product {
   stock_quantity: number;
   is_active: boolean;
   low_stock_threshold: number;
+  total_sold_30d: number;
+  is_best_seller: boolean;
 }
 
 export type MovementType = 'restock' | 'sale' | 'adjustment' | 'refund';
