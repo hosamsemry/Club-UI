@@ -131,6 +131,9 @@ export interface EntryDay {
   id: number;
   visit_date: string;
   daily_capacity: number;
+  total_tickets: number;
+  sold_tickets: number;
+  checked_in_tickets: number;
   is_open: boolean;
 }
 
