@@ -32,7 +32,7 @@ function EntryDayDialog({ open, onOpenChange, day }: { open: boolean; onOpenChan
   const error = ce ?? ue;
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       visit_date: day?.visit_date ?? '',
       daily_capacity: day?.daily_capacity ?? 100,
@@ -51,39 +51,44 @@ function EntryDayDialog({ open, onOpenChange, day }: { open: boolean; onOpenChan
       }
       reset();
       onOpenChange(false);
-    } catch { /* shown */ }
+    } catch {}
   }
 
   const isOpenValue = watch('is_open');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="sm:max-w-md rounded-2xl shadow-xl">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit Entry Day' : 'Add Entry Day'}</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">
+            {isEdit ? '✏️ Edit Entry Day' : '➕ Add Entry Day'}
+          </DialogTitle>
         </DialogHeader>
         {error && <ErrorDisplay error={error} />}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-2">
           <div className="space-y-1.5">
             <Label htmlFor="ed-date">Visit Date *</Label>
-            <Input id="ed-date" type="date" {...register('visit_date')} />
+            <Input id="ed-date" type="date" className="rounded-xl" {...register('visit_date')} />
             {errors.visit_date && <p className="text-xs text-destructive">{errors.visit_date.message}</p>}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="ed-cap">Daily Capacity *</Label>
-            <Input id="ed-cap" type="number" min={1} {...register('daily_capacity')} />
+            <Input id="ed-cap" type="number" min={1} className="rounded-xl" {...register('daily_capacity')} />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between rounded-xl border p-3">
+            <div>
+              <p className="text-sm font-medium">Open for ticketing</p>
+              <p className="text-xs text-muted-foreground">Toggle availability</p>
+            </div>
             <Checkbox
               id="ed-open"
               checked={isOpenValue}
               onCheckedChange={(v) => setValue('is_open', Boolean(v))}
             />
-            <Label htmlFor="ed-open" className="cursor-pointer">Open for ticketing</Label>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={creating || updating}>
+          <DialogFooter className="gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl">Cancel</Button>
+            <Button type="submit" disabled={creating || updating} className="rounded-xl shadow">
               {creating || updating ? 'Saving…' : 'Save'}
             </Button>
           </DialogFooter>
@@ -102,19 +107,27 @@ export function EntryDaysPage() {
   function openEdit(d: EntryDay) { setEditDay(d); setFormOpen(true); }
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Entry Days"
         description="Manage open days and capacity"
-        actions={<Button size="sm" onClick={openCreate}><Plus className="h-4 w-4 mr-1.5" /> Add Day</Button>}
+        actions={
+          <Button size="sm" onClick={openCreate} className="rounded-xl shadow">
+            <Plus className="h-4 w-4 mr-1.5" /> Add Day
+          </Button>
+        }
       />
+
       {error && <ErrorDisplay error={error} />}
-      <div className="rounded-xl border border-border/60 bg-card overflow-hidden shadow-none animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+
+      <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/30 hover:bg-muted/30">
+            <TableRow className="bg-muted/40">
               <TableHead>Visit Date</TableHead>
-              <TableHead className="text-right">Capacity</TableHead>
+              <TableHead className="text-right">Total Tickets</TableHead>
+              <TableHead className="text-right">Sold</TableHead>
+              <TableHead className="text-right">Checked In</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-12" />
             </TableRow>
@@ -123,23 +136,34 @@ export function EntryDaysPage() {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
-                  {Array.from({ length: 4 }).map((_, j) => (
-                    <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>
+                  {Array.from({ length: 6 }).map((_, j) => (
+                    <TableCell key={j}><Skeleton className="h-4 w-full rounded-md" /></TableCell>
                   ))}
                 </TableRow>
               ))
             ) : data?.results.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-12 text-muted-foreground">No entry days configured</TableCell>
+                <TableCell colSpan={6} className="text-center py-14 text-muted-foreground">
+                  🚫 No entry days configured
+                </TableCell>
               </TableRow>
             ) : (
               data?.results.map((d) => (
-                <TableRow key={d.id}>
+                <TableRow key={d.id} className="hover:bg-muted/30 transition">
                   <TableCell className="font-medium">{formatDate(d.visit_date)}</TableCell>
-                  <TableCell className="text-right">{d.daily_capacity}</TableCell>
-                  <TableCell><StatusBadge status={d.is_open ? 'open' : 'closed'} /></TableCell>
+                  <TableCell className="text-right">{d.total_tickets}</TableCell>
+                  <TableCell className="text-right">{d.sold_tickets}</TableCell>
+                  <TableCell className="text-right">{d.checked_in_tickets}</TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(d)}>
+                    <StatusBadge status={d.is_open ? 'open' : 'closed'} />
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-lg hover:bg-muted"
+                      onClick={() => openEdit(d)}
+                    >
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
                   </TableCell>
@@ -149,6 +173,7 @@ export function EntryDaysPage() {
           </TableBody>
         </Table>
       </div>
+
       <EntryDayDialog open={formOpen} onOpenChange={setFormOpen} day={editDay} />
     </div>
   );
