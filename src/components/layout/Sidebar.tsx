@@ -109,14 +109,17 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-4 py-5 border-b border-sidebar-border">
+          <a href="/dashboard">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg  flex items-center justify-center shrink-0 shadow-sm transition-transform duration-200 hover:scale-105">
            <img src="logo.png" alt="Logo"  height={70} style={{maxWidth:"70px"}} />
           </div>
-          <span className="font-semibold text-sidebar-accent-foreground text-sm truncate group-data-[collapsible=icon]:hidden">
-            Club Management
-          </span>
+            <span className="font-semibold text-sidebar-accent-foreground text-sm truncate group-data-[collapsible=icon]:hidden">
+              Club Management
+            </span>
+          
         </div>
+          </a>
       </SidebarHeader>
 
       <SidebarContent className="pt-2">
