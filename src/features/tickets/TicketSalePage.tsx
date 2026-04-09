@@ -1,22 +1,19 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
-import { useCreateTicketSaleMutation, useGetTicketTypesQuery } from '@/api/apiSlice';
-import { formatCurrency } from '@/utils/format';
+import { useCreateTicketSaleMutation, useGetEntryDaysQuery, useGetTicketTypesQuery } from '@/api/apiSlice';
+import { formatCurrency, formatDate } from '@/utils/format';
 import { toast } from 'sonner';
 
 const schema = z.object({
@@ -35,8 +32,13 @@ interface TicketQuantity {
 
 export function TicketSalePage() {
   const { data: ticketTypesData } = useGetTicketTypesQuery({ is_active: 'true' });
+  const { data: entryDaysData, isLoading: isLoadingEntryDays } = useGetEntryDaysQuery({
+    is_open: 'true',
+    start_date: new Date().toISOString().slice(0, 10),
+    ordering: 'visit_date',
+  });
   const [createSale, { isLoading, error }] = useCreateTicketSaleMutation();
-  const [visitDate, setVisitDate] = useState<Date | undefined>();
+  const [visitDate, setVisitDate] = useState<string>('');
   const [quantities, setQuantities] = useState<Record<number, number>>({});
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
@@ -58,6 +60,10 @@ export function TicketSalePage() {
     (sum, item) => sum + parseFloat(item.price) * item.quantity,
     0,
   );
+  const availableEntryDays = useMemo(
+    () => (entryDaysData?.results ?? []).filter((day) => day.is_open),
+    [entryDaysData],
+  );
 
   async function onSubmit(values: FormValues) {
     if (!visitDate) { toast.error('Please select a visit date'); return; }
@@ -67,13 +73,13 @@ export function TicketSalePage() {
       await createSale({
         buyer_name: values.buyer_name,
         buyer_phone: values.buyer_phone,
-        visit_date: format(visitDate, 'yyyy-MM-dd'),
+        visit_date: visitDate,
         notes: values.notes ?? '',
         items: items.map((i) => ({ ticket_type: i.ticket_type, quantity: i.quantity })),
       }).unwrap();
       toast.success('Tickets sold successfully');
       reset();
-      setVisitDate(undefined);
+      setVisitDate('');
       setQuantities({});
     } catch {
       // error shown via ErrorDisplay
@@ -109,17 +115,32 @@ export function TicketSalePage() {
             </div>
             <div className="space-y-1.5">
               <Label>Visit Date *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                    <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" />
-                    {visitDate ? format(visitDate, 'EEEE, MMMM d, yyyy') : 'Select visit date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={visitDate} onSelect={setVisitDate} />
-                </PopoverContent>
-              </Popover>
+              <Select value={visitDate} onValueChange={(value) => value !== null && setVisitDate(value)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue
+                    placeholder={
+                      isLoadingEntryDays ? 'Loading available days...' : 'Select from available days'
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableEntryDays.map((day) => (
+                    <SelectItem key={day.id} value={day.visit_date}>
+                      {formatDate(day.visit_date)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {availableEntryDays.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Only open entry days are shown here.
+                </p>
+              )}
+              {!isLoadingEntryDays && availableEntryDays.length === 0 && (
+                <p className="text-xs text-destructive">
+                  No open entry days are available. Add one from the Entry Days page first.
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label>Notes</Label>
@@ -197,7 +218,12 @@ export function TicketSalePage() {
           </CardContent>
         </Card>
 
-        <Button type="submit" className="w-full press" size="lg" disabled={isLoading || items.length === 0}>
+        <Button
+          type="submit"
+          className="w-full press"
+          size="lg"
+          disabled={isLoading || items.length === 0 || availableEntryDays.length === 0}
+        >
           {isLoading ? 'Processing…' : `Sell Tickets · ${formatCurrency(total)}`}
         </Button>
       </form>
