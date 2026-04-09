@@ -72,11 +72,11 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Gate Tickets',
     items: [
+      { label: 'Entry Days', icon: CalendarDays, to: '/tickets/days', permission: 'entry_days' },
       { label: 'Sell Tickets', icon: Ticket, to: '/tickets/sell', permission: 'ticket_sales' },
       { label: 'Check In', icon: TicketCheck, to: '/tickets/check-in', permission: 'ticket_checkin' },
       { label: 'Ticket List', icon: Layers, to: '/tickets', permission: 'ticket_list' },
       { label: 'Ticket Types', icon: Tag, to: '/tickets/types', permission: 'ticket_types' },
-      { label: 'Entry Days', icon: CalendarDays, to: '/tickets/days', permission: 'entry_days' },
     ],
   },
   {
