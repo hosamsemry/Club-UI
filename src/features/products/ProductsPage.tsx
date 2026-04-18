@@ -1,4 +1,4 @@
-import { useState, type SetStateAction } from 'react';
+import { useState } from 'react';
 import { Plus, Search, MoreHorizontal, Pencil, ArrowLeftRight, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
