@@ -11,6 +11,11 @@ const CONFIG: Record<string, { label: string; className: string; dot?: string }>
   confirmed: { label: 'Confirmed', className: 'bg-blue-50 text-blue-700 border-blue-200/60', dot: 'bg-blue-500' },
   cancelled: { label: 'Cancelled', className: 'bg-red-50 text-red-700 border-red-200/60' },
   completed: { label: 'Completed', className: 'bg-green-50 text-green-700 border-green-200/60', dot: 'bg-green-500' },
+  refunded: { label: 'Refunded', className: 'bg-rose-50 text-rose-700 border-rose-200/60' },
+  paid: { label: 'Paid', className: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', dot: 'bg-emerald-500' },
+  partial: { label: 'Partial', className: 'bg-amber-50 text-amber-700 border-amber-200/60', dot: 'bg-amber-500' },
+  unpaid: { label: 'Unpaid', className: 'bg-slate-50 text-slate-700 border-slate-200/60' },
+  issued: { label: 'Issued', className: 'bg-indigo-50 text-indigo-700 border-indigo-200/60', dot: 'bg-indigo-500' },
   // Ticket statuses
   valid: { label: 'Valid', className: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', dot: 'bg-emerald-500' },
   checked_in: { label: 'Checked In', className: 'bg-teal-50 text-teal-700 border-teal-200/60', dot: 'bg-teal-500' },
