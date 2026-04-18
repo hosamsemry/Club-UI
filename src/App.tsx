@@ -15,6 +15,7 @@ import { TicketListPage } from '@/features/tickets/TicketListPage';
 import { TicketTypesPage } from '@/features/tickets/TicketTypesPage';
 import { EntryDaysPage } from '@/features/tickets/EntryDaysPage';
 import { SalesPage } from '@/features/sales/SalesPage';
+import { TransactionsPage } from '@/features/sales/TransactionsPage';
 import { NewSalePage } from '@/features/sales/NewSalePage';
 import { ReportsPage } from '@/features/reports/ReportsPage';
 import { AuditPage } from '@/features/audit/AuditPage';
@@ -58,6 +59,7 @@ export default function App() {
 
               {/* Sales */}
               <Route path="/sales" element={<SalesPage />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
 
               {/* Management */}
               <Route path="/reports" element={<ReportsPage />} />
