@@ -21,6 +21,7 @@ import type {
   TopProductsResponse,
   DailyReport,
   RevenueReport,
+  TransactionRow,
   RegisterPayload,
   AuthTokens,
 } from '@/types';
@@ -86,7 +87,10 @@ export const apiSlice = createApi({
     'TicketSales',
     'Tickets',
     'Sales',
-    'Reports',    'ClubUsers',  ],
+    'Reports',
+    'Transactions',
+    'ClubUsers',
+  ],
   endpoints: (builder) => ({    // ─── Auth (public) ─────────────────────────────────────────────────
     registerClub: builder.mutation<AuthTokens, RegisterPayload>({
       query: (body) => ({ url: '/api/accounts/register/', method: 'POST', body }),
@@ -188,11 +192,11 @@ export const apiSlice = createApi({
     }),
     createReservation: builder.mutation<Reservation, Partial<Reservation>>({
       query: (body) => ({ url: '/api/events/reservations/', method: 'POST', body }),
-      invalidatesTags: ['Reservations', 'Dashboard'],
+      invalidatesTags: ['Reservations', 'Dashboard', 'Transactions'],
     }),
     updateReservation: builder.mutation<Reservation, { id: number } & Partial<Reservation>>({
       query: ({ id, ...body }) => ({ url: `/api/events/reservations/${id}/`, method: 'PATCH', body }),
-      invalidatesTags: ['Reservations'],
+      invalidatesTags: ['Reservations', 'Transactions'],
     }),
     recordPayment: builder.mutation<Reservation, { id: number; amount: string; note: string }>({
       query: ({ id, ...body }) => ({
@@ -200,7 +204,7 @@ export const apiSlice = createApi({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['Reservations', 'Dashboard'],
+      invalidatesTags: ['Reservations', 'Dashboard', 'Transactions'],
     }),
     cancelReservation: builder.mutation<Reservation, { id: number; refund_amount: string; note: string }>({
       query: ({ id, ...body }) => ({
@@ -208,7 +212,7 @@ export const apiSlice = createApi({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['Reservations', 'Dashboard'],
+      invalidatesTags: ['Reservations', 'Dashboard', 'Transactions'],
     }),
 
     // ─── Tickets – Ticket Types ────────────────────────────────────────────
@@ -249,7 +253,7 @@ export const apiSlice = createApi({
       { buyer_name: string; buyer_phone: string; visit_date: string; notes: string; items: { ticket_type: number; quantity: number }[] }
     >({
       query: (body) => ({ url: '/api/tickets/sales/', method: 'POST', body }),
-      invalidatesTags: ['TicketSales', 'Tickets', 'Dashboard'],
+      invalidatesTags: ['TicketSales', 'Tickets', 'Dashboard', 'Transactions'],
     }),
     getTicketSalesDailySummary: builder.query<DailySummary, { date?: string }>({
       query: (params) => ({ url: '/api/tickets/sales/daily-summary/', params }),
@@ -280,11 +284,11 @@ export const apiSlice = createApi({
     }),
     createSale: builder.mutation<Sale, { items: { product_id: number; quantity: number; unit_price?: string }[]; note?: string }>({
       query: (body) => ({ url: '/api/sales/', method: 'POST', body }),
-      invalidatesTags: ['Sales', 'Products', 'Dashboard'],
+      invalidatesTags: ['Sales', 'Products', 'Dashboard', 'Transactions'],
     }),
     refundSale: builder.mutation<Sale, { id: number; note: string }>({
       query: ({ id, note }) => ({ url: `/api/sales/${id}/refund/`, method: 'POST', body: { note } }),
-      invalidatesTags: ['Sales', 'Products'],
+      invalidatesTags: ['Sales', 'Products', 'Transactions'],
     }),
     getDailySummary: builder.query<DailySummary, { date?: string }>({
       query: (params) => ({ url: '/api/sales/daily-summary/', params }),
@@ -297,6 +301,10 @@ export const apiSlice = createApi({
     }),
 
     // ─── Reporting ────────────────────────────────────────────────────────
+    getTransactions: builder.query<PaginatedResponse<TransactionRow>, Record<string, string>>({
+      query: (params) => ({ url: '/api/reporting/transactions/', params }),
+      providesTags: ['Transactions'],
+    }),
     getReports: builder.query<PaginatedResponse<DailyReport>, Record<string, string>>({
       query: (params) => ({ url: '/api/reporting/daily/', params }),
       providesTags: ['Reports'],
@@ -364,6 +372,7 @@ export const {
   useGetDailySummaryQuery,
   useGetDailyProfitQuery,
   useGetTopProductsQuery,
+  useGetTransactionsQuery,
   useGetReportsQuery,
   useRegenerateReportMutation,
   useLazyGetRevenueQuery,
