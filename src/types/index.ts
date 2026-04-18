@@ -149,6 +149,8 @@ export interface TicketSale {
   visit_date: string;
   notes: string;
   total_amount: string;
+  status?: string;
+  created_by_email?: string;
   items: TicketSaleItem[];
   created_at: string;
 }
@@ -231,6 +233,24 @@ export interface DailyReport {
   total_sales?: string;
   total_tickets?: number;
   total_revenue?: string;
+}
+
+export type TransactionSource = 'products' | 'tickets' | 'events';
+
+export interface TransactionRow {
+  id: string;
+  source: TransactionSource;
+  transaction_id: number;
+  reference: string;
+  activity_at: string;
+  status: string;
+  customer_name: string;
+  customer_phone: string;
+  created_by_email: string;
+  gross_amount: string;
+  refund_amount: string;
+  net_amount: string;
+  summary: string;
 }
 
 // ─── Audit ───────────────────────────────────────────────────────────────────
