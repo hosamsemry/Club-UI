@@ -60,7 +60,8 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Sales',
     items: [
       { label: 'New Sale', icon: Package, to: '/products/sell', permission: 'sales' },
-      { label: 'Sales', icon: ShoppingCart, to: '/sales', permission: 'sales' },
+      { label: 'Sales Overview', icon: ShoppingCart, to: '/sales', permission: 'sales' },
+      { label: 'Transactions', icon: ShoppingBag, to: '/transactions', permission: 'transactions' },
     ],
   },
   {
