@@ -21,6 +21,7 @@ type Permission =
   | 'reports'
   | 'audit'
   | 'sales'
+  | 'transactions'
   | 'users_management';
 
 const PERMISSIONS: Record<UserRole, Permission[]> = {
@@ -38,6 +39,7 @@ const PERMISSIONS: Record<UserRole, Permission[]> = {
     'reports',
     'audit',
     'sales',
+    'transactions',
     'users_management',
   ],
   manager: [
@@ -54,6 +56,7 @@ const PERMISSIONS: Record<UserRole, Permission[]> = {
     'reports',
     'audit',
     'sales',
+    'transactions',
     'users_management',
   ],
   cashier: [

@@ -107,7 +107,7 @@ export function TicketListPage() {
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
-        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v === 'all' ? '' : v); setPage(1); }}>
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(!v || v === 'all' ? '' : v); setPage(1); }}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="All Statuses" />
           </SelectTrigger>

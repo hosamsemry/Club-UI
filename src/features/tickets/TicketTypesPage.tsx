@@ -21,7 +21,7 @@ import { toast } from 'sonner';
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
   price: z.string().min(1, 'Price is required'),
-  display_order: z.coerce.number().min(0),
+  display_order: z.number().min(0),
   is_active: z.boolean(),
 });
 type FormValues = z.infer<typeof schema>;
@@ -79,7 +79,7 @@ function TicketTypeDialog({ open, onOpenChange, ticketType }: { open: boolean; o
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="tt-order">Display Order</Label>
-              <Input id="tt-order" type="number" {...register('display_order')} />
+              <Input id="tt-order" type="number" {...register('display_order', { valueAsNumber: true })} />
             </div>
           </div>
           <div className="flex items-center gap-2">
