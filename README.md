@@ -1,73 +1,90 @@
-# React + TypeScript + Vite
+# Club Management Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript dashboard for the Club Management platform.
 
-Currently, two official plugins are available:
+It connects to the Django API in the sibling `api` folder and provides role-based workflows for operations like inventory, ticketing, reservations, sales, reporting, and user administration.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- JWT-based authentication (login/register) with auto token refresh.
+- Role-aware navigation and default landing routes (`owner`, `manager`, `cashier`, `staff`).
+- Inventory management: categories, products, stock movements, low-stock visibility.
+- Event reservations with payment recording and cancellation flows.
+- Ticketing flows: ticket types, entry days, sell tickets, check-in, ticket list.
+- Sales and transactions screens, plus reporting and audit views.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- React 19 + TypeScript
+- Vite 8
+- Redux Toolkit + RTK Query
+- React Router 7
+- Tailwind CSS 4
+- React Hook Form + Zod
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Project Structure
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+club/
+├── src/
+│   ├── api/           # RTK Query API slice and endpoints
+│   ├── app/           # Redux store and shared app hooks
+│   ├── components/    # Layout and reusable UI components
+│   ├── features/      # Domain features (auth, products, tickets, etc.)
+│   ├── hooks/         # Custom hooks
+│   ├── lib/           # Shared helpers/utilities
+│   ├── types/         # Shared TypeScript types
+│   └── utils/         # Auth, roles, and utility functions
+├── public/
+└── package.json
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Prerequisites
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Node.js 20+
+- npm 10+
+- Running backend API (default: `http://127.0.0.1:8000`)
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Environment Variables
+
+Create a `.env` file in this folder (or copy from `.env.example`):
+
+```bash
+cp .env.example .env
 ```
+
+Set:
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000
+```
+
+## Getting Started
+
+```bash
+npm install
+npm run dev
+```
+
+The app starts on Vite's default dev server (usually `http://localhost:5173`).
+
+## Available Scripts
+
+- `npm run dev` — start development server
+- `npm run build` — type-check and create production build
+- `npm run preview` — preview production build locally
+- `npm run lint` — run ESLint
+
+## Backend Integration
+
+- API base URL is read from `VITE_API_BASE_URL`.
+- Most API calls are centralized in `src/api/apiSlice.ts`.
+- Login posts to `/api/token/`, and refresh uses `/api/token/refresh/`.
+
+## Roles and Access
+
+The UI is role-aware and gates screens by permissions. Default routes:
+
+- `owner`, `manager` → `/dashboard`
+- `cashier` → `/products`
+- `staff` → `/tickets/check-in`
