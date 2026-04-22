@@ -32,7 +32,7 @@ export interface PaginatedResponse<T> {
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 export interface ActivityItem {
   action: string;
-  user_email: string;
+  user_email: string | null;
   created_at: string;
 }
 

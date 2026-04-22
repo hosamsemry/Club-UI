@@ -148,24 +148,29 @@ export function DashboardPage() {
               </div>
             ) : data?.recent_activity && data.recent_activity.length > 0 ? (
               <div className="divide-y divide-border/50">
-                {data.recent_activity.map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-muted/40">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-border/30">
-                      <span className="text-primary text-xs font-semibold">
-                        {item.user_email.slice(0, 1).toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {formatAction(item.action)}
+                {data.recent_activity.map((item, i) => {
+                  const userLabel = item.user_email ?? 'System';
+                  const userInitial = userLabel.slice(0, 1).toUpperCase();
+
+                  return (
+                    <div key={i} className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-muted/40">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-border/30">
+                        <span className="text-primary text-xs font-semibold">
+                          {userInitial}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {formatAction(item.action)}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{userLabel}</p>
+                      </div>
+                      <p className="text-[0.65rem] text-muted-foreground/70 shrink-0 tabular-nums">
+                        {formatDateTime(item.created_at)}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{item.user_email}</p>
                     </div>
-                    <p className="text-[0.65rem] text-muted-foreground/70 shrink-0 tabular-nums">
-                      {formatDateTime(item.created_at)}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-1">
