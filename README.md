@@ -75,6 +75,38 @@ The app starts on Vite's default dev server (usually `http://localhost:5173`).
 - `npm run preview` — preview production build locally
 - `npm run lint` — run ESLint
 
+## Docker
+
+The frontend repo includes its own `docker-compose.yml` for the production-style frontend container.
+
+### Included Service
+
+- `frontend`: React app built with Vite and served by Nginx on `http://localhost:5173`
+
+### Start
+
+Start the backend stack in `api/` first so the shared Docker network `club-network` already exists.
+
+Then, from the `club/` folder:
+
+```bash
+docker compose up --build
+```
+
+### Stop
+
+From the `club/` folder:
+
+```bash
+docker compose down
+```
+
+### How It Connects To The Backend
+
+- Nginx proxies `/api/` and `/media/` to the backend container at `http://backend:8000`
+- `VITE_API_BASE_URL` is set to an empty string in Docker so browser requests stay on the frontend origin
+- Because of that proxy setup, the browser only needs to access `http://localhost:5173`
+
 ## Backend Integration
 
 - API base URL is read from `VITE_API_BASE_URL`.
