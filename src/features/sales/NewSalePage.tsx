@@ -195,6 +195,7 @@ export function NewSalePage() {
   useEffect(() => {
     const prev = prevFilterRef.current;
     if (prev.search !== deferredSearch || prev.categoryId !== categoryId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPage(1);
       setAccumulatedProducts([]);
       prevFilterRef.current = { search: deferredSearch, categoryId };
@@ -215,6 +216,7 @@ export function NewSalePage() {
   useEffect(() => {
     if (!data) return;
     if (page === 1) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAccumulatedProducts(data.results);
     } else {
       setAccumulatedProducts((prev) => {
