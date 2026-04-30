@@ -695,6 +695,7 @@ function SidebarMenuSubButton({
   })
 }
 
+/* eslint-disable react-refresh/only-export-components -- useSidebar is a hook co-exported with components (shadcn/ui pattern) */
 export {
   Sidebar,
   SidebarContent,
