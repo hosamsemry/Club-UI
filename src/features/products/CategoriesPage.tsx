@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -12,7 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
-import { ErrorDisplay, extractMessage } from '@/components/common/ErrorDisplay';
+import { ErrorDisplay } from '@/components/common/ErrorDisplay';
+import { extractMessage } from '@/utils/error';
 import {
   useGetCategoriesQuery,
   useCreateCategoryMutation,
@@ -38,8 +39,14 @@ function CategoryFormDialog({
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: category?.name ?? '', description: category?.description ?? '' },
+    defaultValues: { name: '', description: '' },
   });
+
+  useEffect(() => {
+    if (open) {
+      reset({ name: category?.name ?? '', description: category?.description ?? '' });
+    }
+  }, [category, open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function onSubmit(values: FormValues) {
     try {

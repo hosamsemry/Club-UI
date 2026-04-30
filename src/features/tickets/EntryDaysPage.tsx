@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Pencil } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -32,13 +32,19 @@ function EntryDayDialog({ open, onOpenChange, day }: { open: boolean; onOpenChan
   const error = ce ?? ue;
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema) as any,
-    defaultValues: {
-      visit_date: day?.visit_date ?? '',
-      daily_capacity: day?.daily_capacity ?? 100,
-      is_open: day?.is_open ?? true,
-    },
+    resolver: zodResolver(schema),
+    defaultValues: { visit_date: '', daily_capacity: 100, is_open: true },
   });
+
+  useEffect(() => {
+    if (open) {
+      reset(
+        day
+          ? { visit_date: day.visit_date, daily_capacity: day.daily_capacity, is_open: day.is_open }
+          : { visit_date: '', daily_capacity: 100, is_open: true },
+      );
+    }
+  }, [day, open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function onSubmit(values: FormValues) {
     try {
@@ -51,7 +57,9 @@ function EntryDayDialog({ open, onOpenChange, day }: { open: boolean; onOpenChan
       }
       reset();
       onOpenChange(false);
-    } catch {}
+    } catch {
+      // error is already captured via mutation error state (ce / ue)
+    }
   }
 
   const isOpenValue = watch('is_open');

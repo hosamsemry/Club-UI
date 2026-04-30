@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,6 +30,10 @@ export function CancelModal({ open, onOpenChange, reservation }: Props) {
     resolver: zodResolver(schema),
     defaultValues: { refund_amount: '0.00' },
   });
+
+  useEffect(() => {
+    if (open) reset({ refund_amount: '0.00' });
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function onSubmit(values: FormValues) {
     if (!reservation) return;

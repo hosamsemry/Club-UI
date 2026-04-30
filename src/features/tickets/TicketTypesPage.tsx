@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Pencil } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -34,13 +34,18 @@ function TicketTypeDialog({ open, onOpenChange, ticketType }: { open: boolean; o
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: ticketType?.name ?? '',
-      price: ticketType?.price ?? '',
-      display_order: ticketType?.display_order ?? 0,
-      is_active: ticketType?.is_active ?? true,
-    },
+    defaultValues: { name: '', price: '', display_order: 0, is_active: true },
   });
+
+  useEffect(() => {
+    if (open) {
+      reset(
+        ticketType
+          ? { name: ticketType.name, price: ticketType.price, display_order: ticketType.display_order, is_active: ticketType.is_active }
+          : { name: '', price: '', display_order: 0, is_active: true },
+      );
+    }
+  }, [ticketType, open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function onSubmit(values: FormValues) {
     try {

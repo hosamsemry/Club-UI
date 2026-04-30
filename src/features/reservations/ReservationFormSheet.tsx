@@ -65,10 +65,18 @@ export function ReservationFormSheet({ open, onOpenChange, reservation }: Props)
         total_amount: reservation.total_amount,
         notes: reservation.notes,
       });
+      const start = new Date(reservation.starts_at);
+      const end = new Date(reservation.ends_at);
+      setStartsAt(start);
+      setEndsAt(end);
+      setStartsTime(`${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`);
+      setEndsTime(`${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`);
     } else {
       reset({ guest_count: 1 });
       setStartsAt(undefined);
       setEndsAt(undefined);
+      setStartsTime('18:00');
+      setEndsTime('23:00');
     }
   }, [reservation, reset]);
 

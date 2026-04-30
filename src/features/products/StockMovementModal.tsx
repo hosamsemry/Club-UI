@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -46,6 +47,15 @@ export function StockMovementModal({ open, onOpenChange, preselectedProductId }:
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      reset({
+        movement_type: 'restock',
+        product: preselectedProductId ? String(preselectedProductId) : '',
+      });
+    }
+  }, [open, preselectedProductId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const movementType = watch('movement_type');
 
   async function onSubmit(values: FormValues) {
@@ -82,7 +92,7 @@ export function StockMovementModal({ open, onOpenChange, preselectedProductId }:
             <Label>Product *</Label>
             <Select
               onValueChange={(v) => v && setValue('product', v)}
-              defaultValue={preselectedProductId ? String(preselectedProductId) : undefined}
+              value={watch('product')}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select product" />

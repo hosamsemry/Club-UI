@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,6 +30,10 @@ export function PaymentModal({ open, onOpenChange, reservation }: Props) {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
+
+  useEffect(() => {
+    if (open) reset();
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const remaining = reservation
     ? parseFloat(reservation.total_amount) - parseFloat(reservation.paid_amount ?? '0')
