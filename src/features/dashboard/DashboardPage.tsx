@@ -25,14 +25,14 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, color, iconBg }: StatCardProps) {
   return (
-    <Card className="border border-border/60 shadow-none hover:shadow-md hover:border-border transition-all duration-300 hover-lift group">
+    <Card className="relative overflow-hidden border border-border/60 shadow-none hover:shadow-md hover:border-border transition-all duration-300 hover-lift group card-accent-top">
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-[0.7rem] font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
             <p className={`text-2xl font-bold tracking-tight animate-count-up ${color}`}>{value}</p>
           </div>
-          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${iconBg} transition-transform duration-300 group-hover:scale-110`}>
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${iconBg} transition-all duration-300 group-hover:scale-110 group-hover:shadow-md`}>
             <Icon className="h-5 w-5" />
           </div>
         </div>
@@ -128,7 +128,8 @@ export function DashboardPage() {
       {/* Recent Activity */}
       <Card className="border border-border/60 shadow-none animate-fade-in-up" style={{ animationDelay: '200ms' }}>
         <CardHeader className="pb-3">
-          <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
             Recent Activity
           </CardTitle>
         </CardHeader>
@@ -147,14 +148,18 @@ export function DashboardPage() {
                 ))}
               </div>
             ) : data?.recent_activity && data.recent_activity.length > 0 ? (
-              <div className="divide-y divide-border/50">
+              <div className="divide-y divide-border/40">
                 {data.recent_activity.map((item, i) => {
                   const userLabel = item.user_email ?? 'System';
                   const userInitial = userLabel.slice(0, 1).toUpperCase();
 
                   return (
-                    <div key={i} className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-muted/40">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-border/30">
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-muted/40 animate-fade-in-up"
+                      style={{ animationDelay: `${i * 40}ms` }}
+                    >
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-border/40">
                         <span className="text-primary text-xs font-semibold">
                           {userInitial}
                         </span>
@@ -165,7 +170,7 @@ export function DashboardPage() {
                         </p>
                         <p className="text-xs text-muted-foreground mt-0.5">{userLabel}</p>
                       </div>
-                      <p className="text-[0.65rem] text-muted-foreground/70 shrink-0 tabular-nums">
+                      <p className="text-[0.65rem] text-muted-foreground/60 shrink-0 tabular-nums">
                         {formatDateTime(item.created_at)}
                       </p>
                     </div>
@@ -173,8 +178,8 @@ export function DashboardPage() {
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-1">
-                <span className="text-lg">—</span>
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
+                <span className="text-2xl opacity-30">◇</span>
                 No recent activity
               </div>
             )}

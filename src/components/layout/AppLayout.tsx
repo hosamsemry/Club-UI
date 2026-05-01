@@ -12,7 +12,11 @@ export function AppLayout() {
       <SidebarInset className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-1 overflow-auto bg-background p-6 lg:p-8">
-          <div key={location.pathname} className="animate-fade-in-up">
+          <div
+            key={location.pathname}
+            className="animate-fade-in-up"
+            style={{ animationDuration: '0.35s' }}
+          >
             <Outlet />
           </div>
         </main>

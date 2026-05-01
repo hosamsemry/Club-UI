@@ -92,13 +92,18 @@ const NAV_GROUPS: NavGroup[] = [
 
 function NavButton({ item }: { item: NavItem }) {
   const match = useMatch(item.to);
+  const isActive = !!match;
   return (
     <SidebarMenuButton
       render={<NavLink to={item.to} />}
-      isActive={!!match}
+      isActive={isActive}
       tooltip={item.label}
+      className="relative transition-all duration-200"
     >
-      <item.icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+      {isActive && (
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r-full bg-white/80 animate-scale-in" />
+      )}
+      <item.icon className={`h-4 w-4 shrink-0 transition-all duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
       <span>{item.label}</span>
     </SidebarMenuButton>
   );
@@ -109,16 +114,17 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="px-4 py-5 border-b border-sidebar-border">
+      <SidebarHeader className="px-4 py-4 border-b border-sidebar-border">
           <a href="/dashboard">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg  flex items-center justify-center shrink-0 shadow-sm transition-transform duration-200 hover:scale-105">
-           <img src="logo.png" alt="Logo"  height={70} style={{maxWidth:"70px"}} />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-200 hover:scale-105">
+           <img src="logo.png" alt="Logo" height={70} style={{maxWidth:"70px"}} />
           </div>
-            <span className="font-semibold text-sidebar-accent-foreground text-sm truncate group-data-[collapsible=icon]:hidden">
-              Club Management
-            </span>
-          
+            <div className="group-data-[collapsible=icon]:hidden">
+              <span className="font-semibold text-sidebar-accent-foreground text-sm truncate">
+                Club Management
+              </span>
+            </div>
         </div>
           </a>
       </SidebarHeader>
@@ -148,7 +154,11 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border" />
+      <SidebarFooter className="border-t border-sidebar-border p-3">
+        <div className="group-data-[collapsible=icon]:hidden">
+          <p className="text-[0.6rem] text-sidebar-foreground/25 text-center tracking-wider uppercase">Club Management</p>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }

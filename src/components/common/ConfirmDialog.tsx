@@ -8,6 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { TriangleAlert } from 'lucide-react';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -34,14 +35,21 @@ export function ConfirmDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="animate-scale-in">
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogTitle className="flex items-center gap-2">
+            {variant === 'destructive' && (
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-destructive/10 shrink-0">
+                <TriangleAlert className="h-3.5 w-3.5 text-destructive" />
+              </span>
+            )}
+            {title}
+          </AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className={variant === 'destructive' ? 'bg-destructive text-white hover:bg-destructive/90' : ''}
+            className={variant === 'destructive' ? 'bg-destructive text-white hover:bg-destructive/90 shadow-sm' : ''}
           >
             {confirmLabel}
           </AlertDialogAction>

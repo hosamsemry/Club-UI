@@ -167,6 +167,21 @@
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes shimmer-slide {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes border-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+
+@keyframes tick-in {
+  from { opacity: 0; transform: scale(0.6) rotate(-10deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -252,6 +267,19 @@
   background: rgba(17, 17, 17, 0.85);
 }
 
+@utility animate-tick-in {
+  animation: tick-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@utility shimmer-text {
+  background: linear-gradient(90deg, var(--foreground) 0%, var(--muted-foreground) 40%, var(--foreground) 60%, var(--muted-foreground) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-slide 4s linear infinite;
+}
+
 /* Staggered children animation delays */
 @utility stagger-children {
   & > *:nth-child(1)  { animation-delay: 0ms; }
@@ -283,4 +311,36 @@
   &:active {
     transform: scale(0.98);
   }
+}
+
+/* Subtle glow ring on focus for inputs */
+@utility focus-ring-glow {
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px rgba(16, 163, 127, 0.25);
+  }
+}
+
+/* Gradient top border accent for cards */
+@utility card-accent-top {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(16, 163, 127, 0.6) 50%, transparent);
+    border-radius: 9999px 9999px 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  &:hover::before { opacity: 1; }
+}
+
+/* Frosted divider line */
+@utility divider-fade {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border) 30%, var(--border) 70%, transparent);
 }
