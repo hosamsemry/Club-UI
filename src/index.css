@@ -110,6 +110,59 @@
     --sidebar-ring: #FFFFFF;
 }
 
+.dark {
+    /* Nightlife Base - Deep Midnight Slate */
+    --background: #080C14;
+    --foreground: #F8FAFC;
+    --card: rgba(15, 23, 42, 0.72);
+    --card-foreground: #F8FAFC;
+    --popover: #0F172A;
+    --popover-foreground: #F8FAFC;
+
+    /* Brand – Electric Neon Violet */
+    --primary: #8B5CF6;
+    --primary-foreground: #FFFFFF;
+
+    /* Secondary / Muted with glass translucency */
+    --secondary: rgba(255, 255, 255, 0.06);
+    --secondary-foreground: #F1F5F9;
+    --muted: rgba(255, 255, 255, 0.05);
+    --muted-foreground: #94A3B8;
+
+    /* Accent */
+    --accent: rgba(139, 92, 246, 0.15);
+    --accent-foreground: #DDD6FE;
+
+    /* Status with neon vibrancy */
+    --destructive: #F43F5E;
+    --success: #10B981;
+    --success-foreground: #FFFFFF;
+    --warning: #F59E0B;
+    --warning-foreground: #FFFFFF;
+
+    /* Structure – luminous hairline borders */
+    --border: rgba(255, 255, 255, 0.08);
+    --input: rgba(255, 255, 255, 0.1);
+    --ring: #8B5CF6;
+
+    /* Charts */
+    --chart-1: #8B5CF6;
+    --chart-2: #38BDF8;
+    --chart-3: #10B981;
+    --chart-4: #F59E0B;
+    --chart-5: #EC4899;
+
+    /* Sidebar – ultra dark glass */
+    --sidebar: #05070D;
+    --sidebar-foreground: #94A3B8;
+    --sidebar-primary: #8B5CF6;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: rgba(139, 92, 246, 0.12);
+    --sidebar-accent-foreground: #F1F5F9;
+    --sidebar-border: rgba(255, 255, 255, 0.06);
+    --sidebar-ring: #8B5CF6;
+}
+
 /* ─── Keyframe animations ─── */
 
 @keyframes fade-in {
@@ -213,6 +266,13 @@
   background: #A3A3A3;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
 /* ─── Utilities ─── */
 
 @utility text-balance {
@@ -261,10 +321,76 @@
   background: rgba(255, 255, 255, 0.8);
 }
 
+.dark .glass {
+  background: rgba(15, 23, 42, 0.75);
+}
+
 @utility glass-dark {
   backdrop-filter: blur(16px) saturate(1.5);
   -webkit-backdrop-filter: blur(16px) saturate(1.5);
   background: rgba(17, 17, 17, 0.85);
+}
+
+@utility glass-panel {
+  backdrop-filter: blur(16px) saturate(1.8);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+@utility glass-card {
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+@utility neon-glow-purple {
+  box-shadow: 0 0 25px -3px rgba(139, 92, 246, 0.4), 0 0 10px -2px rgba(139, 92, 246, 0.25);
+}
+
+@utility neon-glow-emerald {
+  box-shadow: 0 0 25px -3px rgba(16, 185, 129, 0.4), 0 0 10px -2px rgba(16, 185, 129, 0.25);
+}
+
+@utility neon-glow-amber {
+  box-shadow: 0 0 25px -3px rgba(245, 158, 11, 0.4), 0 0 10px -2px rgba(245, 158, 11, 0.25);
+}
+
+@utility neon-glow-rose {
+  box-shadow: 0 0 25px -3px rgba(244, 63, 94, 0.45), 0 0 10px -2px rgba(244, 63, 94, 0.3);
+}
+
+@utility neon-glow-cyan {
+  box-shadow: 0 0 25px -3px rgba(6, 182, 212, 0.4), 0 0 10px -2px rgba(6, 182, 212, 0.25);
+}
+
+@utility text-glow-purple {
+  text-shadow: 0 0 14px rgba(139, 92, 246, 0.6);
+}
+
+@utility text-glow-emerald {
+  text-shadow: 0 0 14px rgba(16, 185, 129, 0.6);
+}
+
+@utility text-glow-rose {
+  text-shadow: 0 0 14px rgba(244, 63, 94, 0.6);
+}
+
+@utility text-glow-cyan {
+  text-shadow: 0 0 14px rgba(6, 182, 212, 0.6);
 }
 
 @utility animate-tick-in {

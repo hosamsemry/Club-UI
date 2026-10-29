@@ -14,6 +14,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
 import { useGetDashboardQuery } from '@/api/apiSlice';
 import { formatCurrency, formatDateTime, formatAction } from '@/utils/format';
+import { LiveOccupancyWidget } from './LiveOccupancyWidget';
 
 interface StatCardProps {
   title: string;
@@ -57,6 +58,21 @@ function StatCardSkeleton() {
   );
 }
 
+function OccupancyWidgetSkeleton() {
+  return (
+    <Card className="border border-border/60 bg-card/60 backdrop-blur-md mb-8 p-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+        <Skeleton className="w-28 h-28 rounded-full shrink-0" />
+        <div className="space-y-3 flex-1">
+          <Skeleton className="h-4 w-32 rounded-md" />
+          <Skeleton className="h-8 w-56 rounded-md" />
+          <Skeleton className="h-4 w-80 rounded-md" />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export function DashboardPage() {
   const { data, isLoading, error } = useGetDashboardQuery();
 
@@ -65,6 +81,13 @@ export function DashboardPage() {
       <PageHeader title="Dashboard" description="Today's club overview" />
 
       {error && <ErrorDisplay error={error} />}
+
+      {/* Live Occupancy Widget */}
+      {isLoading ? (
+        <OccupancyWidgetSkeleton />
+      ) : data ? (
+        <LiveOccupancyWidget summary={data} />
+      ) : null}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8 stagger-children">
@@ -76,50 +99,50 @@ export function DashboardPage() {
               title="Total Products"
               value={data.total_products}
               icon={Package}
-              color="text-blue-700"
-              iconBg="bg-blue-50 text-blue-600"
+              color="text-blue-600 dark:text-blue-400"
+              iconBg="bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400"
             />
             <StatCard
               title="Low Stock Alerts"
               value={data.low_stock_alert_count}
               icon={AlertTriangle}
-              color={data.low_stock_alert_count > 0 ? 'text-amber-600' : 'text-foreground'}
-              iconBg="bg-amber-50 text-amber-600"
+              color={data.low_stock_alert_count > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}
+              iconBg="bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400"
             />
             <StatCard
               title="Reservations Today"
               value={data.today_reservations_count}
               icon={CalendarRange}
-              color="text-purple-700"
-              iconBg="bg-purple-50 text-purple-600"
+              color="text-purple-600 dark:text-purple-400"
+              iconBg="bg-purple-50 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400"
             />
             <StatCard
               title="Pending Reservations"
               value={data.pending_reservations_count}
               icon={Clock}
-              color={data.pending_reservations_count > 0 ? 'text-orange-600' : 'text-foreground'}
-              iconBg="bg-orange-50 text-orange-600"
+              color={data.pending_reservations_count > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-foreground'}
+              iconBg="bg-orange-50 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400"
             />
             <StatCard
               title="Tickets Sold Today"
               value={data.today_ticket_sales_count}
               icon={Ticket}
-              color="text-teal-700"
-              iconBg="bg-teal-50 text-teal-600"
+              color="text-teal-600 dark:text-teal-400"
+              iconBg="bg-teal-50 text-teal-600 dark:bg-teal-500/15 dark:text-teal-400"
             />
             <StatCard
               title="Today's Ticket Revenue"
               value={formatCurrency(data.today_ticket_revenue)}
               icon={DollarSign}
-              color="text-green-700"
-              iconBg="bg-green-50 text-green-600"
+              color="text-emerald-600 dark:text-emerald-400"
+              iconBg="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400"
             />
             <StatCard
               title="Check-ins Today"
               value={data.today_checked_in_tickets_count}
               icon={TicketCheck}
-              color="text-cyan-700"
-              iconBg="bg-cyan-50 text-cyan-600"
+              color="text-cyan-600 dark:text-cyan-400"
+              iconBg="bg-cyan-50 text-cyan-600 dark:bg-cyan-500/15 dark:text-cyan-400"
             />
           </>
         ) : null}

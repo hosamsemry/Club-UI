@@ -12,7 +12,9 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { logout } from '@/features/auth/authSlice';
+import { apiSlice } from '@/api/apiSlice';
 import { ROLE_LABELS } from '@/utils/roles';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
 import type { UserRole } from '@/types';
 
 export function Header() {
@@ -24,14 +26,17 @@ export function Header() {
 
   function handleLogout() {
     dispatch(logout());
+    dispatch(apiSlice.util.resetApiState());
     navigate('/login');
   }
 
   return (
-    <header className="h-14 flex items-center border-b border-border/50 bg-card/90 glass px-4 gap-3 shrink-0 sticky top-0 z-10 shadow-[0_1px_0_0_rgba(0,0,0,0.04),0_2px_8px_-4px_rgba(0,0,0,0.06)]">
+    <header className="h-14 flex items-center border-b border-border/60 bg-background/80 dark:bg-card/80 backdrop-blur-xl px-4 gap-3 shrink-0 sticky top-0 z-10 shadow-[0_1px_0_0_rgba(0,0,0,0.04),0_2px_8px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.6)]">
       <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground hover:bg-accent/60 rounded-md p-1.5 transition-all duration-200" />
       <Separator orientation="vertical" className="h-5 opacity-30" />
       <div className="flex-1" />
+
+      <ThemeToggle />
 
       <DropdownMenu>
         <DropdownMenuTrigger

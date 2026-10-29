@@ -1,4 +1,4 @@
-import { NavLink, useMatch } from 'react-router-dom';
+import { NavLink, Link, useMatch } from 'react-router-dom';
 import {
   LayoutDashboard,
   Package,
@@ -28,7 +28,7 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import { useAppSelector } from '@/app/hooks';
-import { can } from '@/utils/roles';
+import { can, getDefaultRoute } from '@/utils/roles';
 import type { UserRole } from '@/types';
 
 interface NavItem {
@@ -115,18 +115,18 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-4 py-4 border-b border-sidebar-border">
-          <a href="/dashboard">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-200 hover:scale-105">
-           <img src="logo.png" alt="Logo" height={70} style={{maxWidth:"70px"}} />
-          </div>
+        <Link to={getDefaultRoute(role)}>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-200 hover:scale-105">
+              <img src="/logo.png" alt="Logo" height={70} style={{maxWidth:"70px"}} />
+            </div>
             <div className="group-data-[collapsible=icon]:hidden">
               <span className="font-semibold text-sidebar-accent-foreground text-sm truncate">
                 Club Management
               </span>
             </div>
-        </div>
-          </a>
+          </div>
+        </Link>
       </SidebarHeader>
 
       <SidebarContent className="pt-2">
