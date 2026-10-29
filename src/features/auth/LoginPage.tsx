@@ -11,13 +11,14 @@ import { useAppDispatch } from '@/app/hooks';
 import { loginSuccess } from '@/features/auth/authSlice';
 import { getDefaultRoute } from '@/utils/roles';
 import { parseJwt } from '@/utils/auth';
+import { extractMessage } from '@/utils/error';
 import type { UserRole } from '@/types';
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined);
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '';
 
 const schema = z.object({
-  email: z.string().email('Enter a valid email'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string({ message: 'Enter a valid email' }).email('Enter a valid email'),
+  password: z.string({ message: 'Password is required' }).min(1, 'Password is required'),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -50,8 +51,7 @@ export function LoginPage() {
       navigate(getDefaultRoute(role), { replace: true });
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        const detail = (err.response?.data as { detail?: string } | undefined)?.detail;
-        setServerError(detail ?? 'Invalid credentials. Please try again.');
+        setServerError(extractMessage({ data: err.response?.data }));
       } else {
         setServerError('An unexpected error occurred.');
       }
@@ -195,7 +195,7 @@ export function LoginPage() {
           {/* Logo */}
           <div className="anim-logo" style={{ display: 'flex', alignItems: 'center', gap: '0px', marginBottom: '26px', width:'250px' }}>
             <div>
-              <img src="logo.png" alt="Logo" width={100} height={100} />
+              <img src="/logo.png" alt="Logo" width={100} height={100} />
             </div>
             <div>
               <p style={{ color: '#fff', fontSize: '0.875rem', fontWeight: 500, letterSpacing: '0.01em', lineHeight: 1.2 }}>

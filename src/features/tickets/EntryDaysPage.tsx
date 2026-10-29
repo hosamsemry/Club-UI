@@ -13,30 +13,40 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { useGetEntryDaysQuery, useCreateEntryDayMutation, useUpdateEntryDayMutation } from '@/api/apiSlice';
 import { formatDate } from '@/utils/format';
 import type { EntryDay } from '@/types';
 import { toast } from 'sonner';
+import { extractErrorDetails } from '@/utils/error';
 
 const schema = z.object({
-  visit_date: z.string().min(1, 'Date is required'),
-  daily_capacity: z.coerce.number().min(1),
+  visit_date: z.string({ message: 'Date is required' }).min(1, 'Date is required'),
+  daily_capacity: z.coerce.number().min(1, 'Capacity must be at least 1'),
   is_open: z.boolean(),
 });
 type FormValues = z.infer<typeof schema>;
 
 function EntryDayDialog({ open, onOpenChange, day }: { open: boolean; onOpenChange: (o: boolean) => void; day: EntryDay | null }) {
   const isEdit = !!day;
-  const [create, { isLoading: creating, error: ce }] = useCreateEntryDayMutation();
-  const [update, { isLoading: updating, error: ue }] = useUpdateEntryDayMutation();
-  const error = ce ?? ue;
+  const [create, { isLoading: creating, error: ce, reset: resetCreate }] = useCreateEntryDayMutation();
+  const [update, { isLoading: updating, error: ue, reset: resetUpdate }] = useUpdateEntryDayMutation();
+  const error = isEdit ? ue : ce;
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+  const { register, handleSubmit, setValue, setError, watch, reset, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(schema) as never,
     defaultValues: { visit_date: '', daily_capacity: 100, is_open: true },
   });
 
   useEffect(() => {
+    resetCreate();
+    resetUpdate();
     if (open) {
       reset(
         day
@@ -44,7 +54,7 @@ function EntryDayDialog({ open, onOpenChange, day }: { open: boolean; onOpenChan
           : { visit_date: '', daily_capacity: 100, is_open: true },
       );
     }
-  }, [day, open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, day, reset, resetCreate, resetUpdate]);
 
   async function onSubmit(values: FormValues) {
     try {
@@ -57,8 +67,14 @@ function EntryDayDialog({ open, onOpenChange, day }: { open: boolean; onOpenChan
       }
       reset();
       onOpenChange(false);
-    } catch {
-      // error is already captured via mutation error state (ce / ue)
+    } catch (err: unknown) {
+      const details = extractErrorDetails(err);
+      for (const [field, msg] of Object.entries(details.fieldErrors)) {
+        if (['visit_date', 'daily_capacity', 'is_open'].includes(field)) {
+          setError(field as keyof FormValues, { message: msg });
+        }
+      }
+      toast.error(details.message);
     }
   }
 
@@ -82,6 +98,7 @@ function EntryDayDialog({ open, onOpenChange, day }: { open: boolean; onOpenChan
           <div className="space-y-1.5">
             <Label htmlFor="ed-cap">Daily Capacity *</Label>
             <Input id="ed-cap" type="number" min={1} className="rounded-xl" {...register('daily_capacity')} />
+            {errors.daily_capacity && <p className="text-xs text-destructive">{errors.daily_capacity.message}</p>}
           </div>
           <div className="flex items-center justify-between rounded-xl border p-3">
             <div>
@@ -107,9 +124,11 @@ function EntryDayDialog({ open, onOpenChange, day }: { open: boolean; onOpenChan
 }
 
 export function EntryDaysPage() {
-  const { data, isLoading, error } = useGetEntryDaysQuery({});
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error } = useGetEntryDaysQuery({ page: String(page) });
   const [formOpen, setFormOpen] = useState(false);
   const [editDay, setEditDay] = useState<EntryDay | null>(null);
+  const totalPages = Math.ceil((data?.count ?? 0) / 20);
 
   function openCreate() { setEditDay(null); setFormOpen(true); }
   function openEdit(d: EntryDay) { setEditDay(d); setFormOpen(true); }
@@ -181,6 +200,28 @@ export function EntryDaysPage() {
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className={page <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <span className="text-sm px-3 py-2">Page {page} of {totalPages}</span>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className={page >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
 
       <EntryDayDialog open={formOpen} onOpenChange={setFormOpen} day={editDay} />
     </div>

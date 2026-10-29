@@ -11,9 +11,10 @@ import { ErrorDisplay } from '@/components/common/ErrorDisplay';
 import { useCancelReservationMutation } from '@/api/apiSlice';
 import type { Reservation } from '@/types';
 import { toast } from 'sonner';
+import { extractErrorDetails } from '@/utils/error';
 
 const schema = z.object({
-  refund_amount: z.string().min(1, 'Refund amount is required'),
+  refund_amount: z.string({ message: 'Refund amount is required' }).min(1, 'Refund amount is required'),
   note: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
@@ -25,15 +26,16 @@ interface Props {
 }
 
 export function CancelModal({ open, onOpenChange, reservation }: Props) {
-  const [cancelReservation, { isLoading, error }] = useCancelReservationMutation();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const [cancelReservation, { isLoading, error, reset: resetMutation }] = useCancelReservationMutation();
+  const { register, handleSubmit, reset, setError, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { refund_amount: '0.00' },
   });
 
   useEffect(() => {
+    resetMutation();
     if (open) reset({ refund_amount: '0.00' });
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, reset, resetMutation]);
 
   async function onSubmit(values: FormValues) {
     if (!reservation) return;
@@ -46,8 +48,14 @@ export function CancelModal({ open, onOpenChange, reservation }: Props) {
       toast.success('Reservation cancelled');
       reset();
       onOpenChange(false);
-    } catch {
-      // error shown via ErrorDisplay
+    } catch (err: unknown) {
+      const details = extractErrorDetails(err);
+      for (const [field, msg] of Object.entries(details.fieldErrors)) {
+        if (['refund_amount', 'note'].includes(field)) {
+          setError(field as keyof FormValues, { message: msg });
+        }
+      }
+      toast.error(details.message);
     }
   }
 

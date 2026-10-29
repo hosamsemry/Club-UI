@@ -13,7 +13,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/common/PageHeader';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
-import { extractMessage } from '@/utils/error';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { extractMessage, extractErrorDetails } from '@/utils/error';
 import {
   useGetCategoriesQuery,
   useCreateCategoryMutation,
@@ -24,7 +31,7 @@ import type { Category } from '@/types';
 import { toast } from 'sonner';
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string({ message: 'Name is required' }).min(1, 'Name is required'),
   description: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
@@ -33,20 +40,22 @@ function CategoryFormDialog({
   open, onOpenChange, category,
 }: { open: boolean; onOpenChange: (o: boolean) => void; category: Category | null }) {
   const isEdit = !!category;
-  const [createCategory, { isLoading: creating, error: ce }] = useCreateCategoryMutation();
-  const [updateCategory, { isLoading: updating, error: ue }] = useUpdateCategoryMutation();
-  const error = ce ?? ue;
+  const [createCategory, { isLoading: creating, error: ce, reset: resetCreate }] = useCreateCategoryMutation();
+  const [updateCategory, { isLoading: updating, error: ue, reset: resetUpdate }] = useUpdateCategoryMutation();
+  const error = isEdit ? ue : ce;
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, reset, setError, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { name: '', description: '' },
   });
 
   useEffect(() => {
+    resetCreate();
+    resetUpdate();
     if (open) {
       reset({ name: category?.name ?? '', description: category?.description ?? '' });
     }
-  }, [category, open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [category, open, reset, resetCreate, resetUpdate]);
 
   async function onSubmit(values: FormValues) {
     try {
@@ -59,8 +68,14 @@ function CategoryFormDialog({
       }
       reset();
       onOpenChange(false);
-    } catch {
-      // error displayed below
+    } catch (err: unknown) {
+      const details = extractErrorDetails(err);
+      for (const [field, msg] of Object.entries(details.fieldErrors)) {
+        if (['name', 'description'].includes(field)) {
+          setError(field as keyof FormValues, { message: msg });
+        }
+      }
+      toast.error(details.message);
     }
   }
 
@@ -94,11 +109,13 @@ function CategoryFormDialog({
 }
 
 export function CategoriesPage() {
-  const { data, isLoading, error } = useGetCategoriesQuery({});
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error } = useGetCategoriesQuery({ page: String(page) });
   const [deleteCategory] = useDeleteCategoryMutation();
   const [formOpen, setFormOpen] = useState(false);
   const [editCat, setEditCat] = useState<Category | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
+  const totalPages = Math.ceil((data?.count ?? 0) / 20);
 
   function openCreate() { setEditCat(null); setFormOpen(true); }
   function openEdit(c: Category) { setEditCat(c); setFormOpen(true); }
@@ -170,6 +187,30 @@ export function CategoriesPage() {
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-4">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className={page <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <span className="text-sm px-3 py-2">Page {page} of {totalPages}</span>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className={page >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       <CategoryFormDialog open={formOpen} onOpenChange={setFormOpen} category={editCat} />
       <ConfirmDialog

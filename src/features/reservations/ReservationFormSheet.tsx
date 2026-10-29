@@ -20,13 +20,14 @@ import {
 } from '@/api/apiSlice';
 import type { Reservation } from '@/types';
 import { toast } from 'sonner';
+import { extractErrorDetails } from '@/utils/error';
 
 const schema = z.object({
-  occasion_type: z.string().min(1, 'Occasion type is required'),
-  guest_name: z.string().min(1, 'Guest name is required'),
-  guest_phone: z.string().min(1, 'Phone is required'),
+  occasion_type: z.string({ message: 'Occasion type is required' }).min(1, 'Occasion type is required'),
+  guest_name: z.string({ message: 'Guest name is required' }).min(1, 'Guest name is required'),
+  guest_phone: z.string({ message: 'Phone is required' }).min(1, 'Phone is required'),
   guest_count: z.coerce.number().min(1),
-  total_amount: z.string().min(1, 'Amount is required'),
+  total_amount: z.string({ message: 'Amount is required' }).min(1, 'Amount is required'),
   notes: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
@@ -40,9 +41,9 @@ interface Props {
 export function ReservationFormSheet({ open, onOpenChange, reservation }: Props) {
   const isEdit = !!reservation;
   const { data: occasionTypesData } = useGetOccasionTypesQuery({});
-  const [createReservation, { isLoading: creating, error: ce }] = useCreateReservationMutation();
-  const [updateReservation, { isLoading: updating, error: ue }] = useUpdateReservationMutation();
-  const error = ce ?? ue;
+  const [createReservation, { isLoading: creating, error: ce, reset: resetCreate }] = useCreateReservationMutation();
+  const [updateReservation, { isLoading: updating, error: ue, reset: resetUpdate }] = useUpdateReservationMutation();
+  const error = isEdit ? ue : ce;
   const isSaving = creating || updating;
 
   const [startsAt, setStartsAt] = useState<Date | undefined>();
@@ -50,35 +51,53 @@ export function ReservationFormSheet({ open, onOpenChange, reservation }: Props)
   const [startsTime, setStartsTime] = useState('18:00');
   const [endsTime, setEndsTime] = useState('23:00');
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, setValue, setError, watch, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
-    defaultValues: { guest_count: 1 },
+    defaultValues: {
+      occasion_type: '',
+      guest_name: '',
+      guest_phone: '',
+      guest_count: 1,
+      total_amount: '',
+      notes: '',
+    },
   });
 
   useEffect(() => {
-    if (reservation) {
-      reset({
-        occasion_type: String(reservation.occasion_type),
-        guest_name: reservation.guest_name,
-        guest_phone: reservation.guest_phone,
-        guest_count: reservation.guest_count,
-        total_amount: reservation.total_amount,
-        notes: reservation.notes,
-      });
-      const start = new Date(reservation.starts_at);
-      const end = new Date(reservation.ends_at);
-      setStartsAt(start);
-      setEndsAt(end);
-      setStartsTime(`${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`);
-      setEndsTime(`${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`);
-    } else {
-      reset({ guest_count: 1 });
-      setStartsAt(undefined);
-      setEndsAt(undefined);
-      setStartsTime('18:00');
-      setEndsTime('23:00');
+    resetCreate();
+    resetUpdate();
+    if (open) {
+      if (reservation) {
+        reset({
+          occasion_type: String(reservation.occasion_type),
+          guest_name: reservation.guest_name,
+          guest_phone: reservation.guest_phone,
+          guest_count: reservation.guest_count,
+          total_amount: reservation.total_amount,
+          notes: reservation.notes,
+        });
+        const start = new Date(reservation.starts_at);
+        const end = new Date(reservation.ends_at);
+        setStartsAt(start);
+        setEndsAt(end);
+        setStartsTime(`${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`);
+        setEndsTime(`${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`);
+      } else {
+        reset({
+          occasion_type: '',
+          guest_name: '',
+          guest_phone: '',
+          guest_count: 1,
+          total_amount: '',
+          notes: '',
+        });
+        setStartsAt(undefined);
+        setEndsAt(undefined);
+        setStartsTime('18:00');
+        setEndsTime('23:00');
+      }
     }
-  }, [reservation, reset]);
+  }, [open, reservation, reset, resetCreate, resetUpdate]);
 
   function combineDateTime(date: Date | undefined, time: string): string {
     if (!date) return '';
@@ -89,11 +108,21 @@ export function ReservationFormSheet({ open, onOpenChange, reservation }: Props)
   }
 
   async function onSubmit(values: FormValues) {
+    if (!startsAt || !endsAt) {
+      toast.error('Please select both start and end dates.');
+      return;
+    }
+    const starts_at = combineDateTime(startsAt, startsTime);
+    const ends_at = combineDateTime(endsAt, endsTime);
+    if (new Date(ends_at) <= new Date(starts_at)) {
+      toast.error('End time must be after start time.');
+      return;
+    }
     const payload = {
       ...values,
       occasion_type: Number(values.occasion_type),
-      starts_at: combineDateTime(startsAt, startsTime),
-      ends_at: combineDateTime(endsAt, endsTime),
+      starts_at,
+      ends_at,
     };
     try {
       if (isEdit && reservation) {
@@ -104,8 +133,14 @@ export function ReservationFormSheet({ open, onOpenChange, reservation }: Props)
         toast.success('Reservation created');
       }
       onOpenChange(false);
-    } catch {
-      // error shown via ErrorDisplay
+    } catch (err: unknown) {
+      const details = extractErrorDetails(err);
+      for (const [field, msg] of Object.entries(details.fieldErrors)) {
+        if (['occasion_type', 'guest_name', 'guest_phone', 'guest_count', 'total_amount', 'notes'].includes(field)) {
+          setError(field as keyof FormValues, { message: msg });
+        }
+      }
+      toast.error(details.message);
     }
   }
 
@@ -180,6 +215,7 @@ export function ReservationFormSheet({ open, onOpenChange, reservation }: Props)
             <div className="space-y-1.5">
               <Label>Guest Count *</Label>
               <Input type="number" min={1} {...register('guest_count')} />
+              {errors.guest_count && <p className="text-xs text-destructive">{errors.guest_count.message}</p>}
             </div>
             <div className="space-y-1.5">
               <Label>Total Amount *</Label>

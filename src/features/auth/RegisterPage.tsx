@@ -8,29 +8,58 @@ import { Input } from '@/components/ui/input';
 import { useRegisterClubMutation } from '@/api/apiSlice';
 
 const schema = z.object({
-  club_name: z.string().min(2, 'Club name must be at least 2 characters'),
-  email: z.string().email('Enter a valid email'),
-  username: z.string().min(3, 'Username must be at least 3 characters'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  club_name: z.string({ message: 'Club name is required' }).min(2, 'Club name must be at least 2 characters'),
+  email: z.string({ message: 'Enter a valid email' }).email('Enter a valid email'),
+  username: z.string({ message: 'Username is required' }).min(3, 'Username must be at least 3 characters'),
+  password: z.string({ message: 'Password is required' }).min(6, 'Password must be at least 6 characters'),
 });
 type FormValues = z.infer<typeof schema>;
 
-/** Extract the first human-readable message from a DRF error response */
-function extractError(data: unknown): string {
-  if (!data || typeof data !== 'object') return 'An unexpected error occurred.';
+/** Extract human-readable failure messages from a DRF / API error response */
+function extractErrorDetails(data: unknown): { summary: string; fieldErrors: Record<string, string> } {
+  const fieldErrors: Record<string, string> = {};
+  if (!data || typeof data !== 'object') {
+    return { summary: 'An unexpected error occurred. Please check your connection and try again.', fieldErrors };
+  }
+
   const obj = data as Record<string, unknown>;
-  for (const key of ['detail', 'non_field_errors', 'club_name', 'email', 'username', 'password']) {
-    const v = obj[key];
-    if (typeof v === 'string') return v;
-    if (Array.isArray(v) && typeof v[0] === 'string') return v[0];
+  const errorsObj = (obj.errors && typeof obj.errors === 'object' && obj.errors !== null)
+    ? (obj.errors as Record<string, unknown>)
+    : obj;
+
+  const messages: string[] = [];
+
+  for (const [key, val] of Object.entries(errorsObj)) {
+    if (key === 'success') continue;
+    let text = '';
+    if (typeof val === 'string') {
+      text = val;
+    } else if (Array.isArray(val) && val.length > 0) {
+      text = val.map((v) => String(v)).join(' ');
+    } else if (val && typeof val === 'object') {
+      text = JSON.stringify(val);
+    }
+
+    if (text) {
+      if (['club_name', 'email', 'username', 'password'].includes(key)) {
+        fieldErrors[key] = text;
+      }
+      const label = key === 'detail' || key === 'non_field_errors'
+        ? ''
+        : key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) + ': ';
+      messages.push(`${label}${text}`);
+    }
   }
-  const firstKey = Object.keys(obj)[0];
-  if (firstKey) {
-    const v = obj[firstKey];
-    if (typeof v === 'string') return v;
-    if (Array.isArray(v) && typeof v[0] === 'string') return `${firstKey}: ${v[0]}`;
+
+  if (messages.length > 0) {
+    return { summary: messages.join(' | '), fieldErrors };
   }
-  return 'Registration failed. Please try again.';
+
+  if (typeof obj.message === 'string' && obj.message && obj.message !== 'Validation error') {
+    return { summary: obj.message, fieldErrors };
+  }
+
+  return { summary: 'Registration failed. Please check the entered information and try again.', fieldErrors };
 }
 
 const REDIRECT_DELAY = 4;
@@ -55,6 +84,7 @@ export function RegisterPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
@@ -71,7 +101,13 @@ export function RegisterPage() {
       setSuccessClubName(values.club_name.trim());
     } catch (err: unknown) {
       const data = (err as { data?: unknown })?.data;
-      setServerError(extractError(data));
+      const { summary, fieldErrors } = extractErrorDetails(data);
+      setServerError(summary);
+      for (const [field, msg] of Object.entries(fieldErrors)) {
+        if (['club_name', 'email', 'username', 'password'].includes(field)) {
+          setError(field as keyof FormValues, { type: 'server', message: msg });
+        }
+      }
     }
   }
 
@@ -282,7 +318,7 @@ export function RegisterPage() {
             style={{ display: 'flex', alignItems: 'center', gap: '0px', marginBottom: '36px', width: '250px' }}
           >
             <div>
-              <img src="logo.png" alt="Logo" width={100} height={100} />
+              <img src="/logo.png" alt="Logo" width={100} height={100} />
             </div>
             <div>
               <p style={{ color: '#fff', fontSize: '0.875rem', fontWeight: 500, letterSpacing: '0.01em', lineHeight: 1.2 }}>

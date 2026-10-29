@@ -15,6 +15,7 @@ import { ErrorDisplay } from '@/components/common/ErrorDisplay';
 import { ReservationFormSheet } from './ReservationFormSheet';
 import { PaymentModal } from './PaymentModal';
 import { CancelModal } from './CancelModal';
+import { OccasionTypesModal } from './OccasionTypesModal';
 import { useGetReservationsQuery } from '@/api/apiSlice';
 import { formatCurrency, formatDateTime } from '@/utils/format';
 import type { Reservation, ReservationStatus } from '@/types';
@@ -35,6 +36,7 @@ export function ReservationsPage() {
   const [editReservation, setEditReservation] = useState<Reservation | null>(null);
   const [paymentTarget, setPaymentTarget] = useState<Reservation | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Reservation | null>(null);
+  const [occasionTypesOpen, setOccasionTypesOpen] = useState(false);
 
   const params: Record<string, string> = { page: String(page) };
   if (search) params['search'] = search;
@@ -52,9 +54,14 @@ export function ReservationsPage() {
         title="Event Reservations"
         description="Manage all event and occasion bookings"
         actions={
-          <Button size="sm" onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-1.5" /> Create Reservation
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => setOccasionTypesOpen(true)}>
+              Occasion Types
+            </Button>
+            <Button size="sm" onClick={openCreate}>
+              <Plus className="h-4 w-4 mr-1.5" /> Create Reservation
+            </Button>
+          </div>
         }
       />
 
@@ -184,6 +191,7 @@ export function ReservationsPage() {
       <ReservationFormSheet open={formOpen} onOpenChange={setFormOpen} reservation={editReservation} />
       <PaymentModal open={!!paymentTarget} onOpenChange={(o) => !o && setPaymentTarget(null)} reservation={paymentTarget} />
       <CancelModal open={!!cancelTarget} onOpenChange={(o) => !o && setCancelTarget(null)} reservation={cancelTarget} />
+      <OccasionTypesModal open={occasionTypesOpen} onOpenChange={setOccasionTypesOpen} />
     </div>
   );
 }

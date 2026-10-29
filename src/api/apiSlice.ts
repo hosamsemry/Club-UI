@@ -28,7 +28,7 @@ import type {
 import { getAccessToken, getRefreshToken, setAccessToken } from '@/utils/auth';
 import { logout, tokenUpdated } from '@/features/auth/authSlice';
 
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined);
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '';
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
@@ -61,9 +61,11 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
         result = await rawBaseQuery(args, api, extraOptions);
       } else {
         api.dispatch(logout());
+        api.dispatch(apiSlice.util.resetApiState());
       }
     } else {
       api.dispatch(logout());
+      api.dispatch(apiSlice.util.resetApiState());
     }
   }
 
@@ -130,7 +132,7 @@ export const apiSlice = createApi({
     }),
     updateCategory: builder.mutation<Category, { id: number } & Partial<Category>>({
       query: ({ id, ...body }) => ({ url: `/api/inventory/categories/${id}/`, method: 'PATCH', body }),
-      invalidatesTags: ['Categories'],
+      invalidatesTags: ['Categories', 'Products'],
     }),
     deleteCategory: builder.mutation<void, number>({
       query: (id) => ({ url: `/api/inventory/categories/${id}/`, method: 'DELETE' }),
@@ -196,7 +198,7 @@ export const apiSlice = createApi({
     }),
     updateReservation: builder.mutation<Reservation, { id: number } & Partial<Reservation>>({
       query: ({ id, ...body }) => ({ url: `/api/events/reservations/${id}/`, method: 'PATCH', body }),
-      invalidatesTags: ['Reservations', 'Transactions'],
+      invalidatesTags: ['Reservations', 'Dashboard', 'Transactions'],
     }),
     recordPayment: builder.mutation<Reservation, { id: number; amount: string; note: string }>({
       query: ({ id, ...body }) => ({
@@ -253,10 +255,11 @@ export const apiSlice = createApi({
       { buyer_name: string; buyer_phone: string; visit_date: string; notes: string; items: { ticket_type: number; quantity: number }[] }
     >({
       query: (body) => ({ url: '/api/tickets/sales/', method: 'POST', body }),
-      invalidatesTags: ['TicketSales', 'Tickets', 'Dashboard', 'Transactions'],
+      invalidatesTags: ['TicketSales', 'Tickets', 'EntryDays', 'Dashboard', 'Transactions'],
     }),
     getTicketSalesDailySummary: builder.query<DailySummary, { date?: string }>({
       query: (params) => ({ url: '/api/tickets/sales/daily-summary/', params }),
+      providesTags: ['TicketSales'],
     }),
 
     // ─── Tickets – Items ───────────────────────────────────────────────────
@@ -266,15 +269,15 @@ export const apiSlice = createApi({
     }),
     checkInTicket: builder.mutation<Ticket, number>({
       query: (id) => ({ url: `/api/tickets/items/${id}/check-in/`, method: 'POST', body: {} }),
-      invalidatesTags: ['Tickets', 'Dashboard'],
+      invalidatesTags: ['Tickets', 'EntryDays', 'Dashboard'],
     }),
     checkInByCode: builder.mutation<Ticket, { code: string }>({
       query: (body) => ({ url: '/api/tickets/items/check-in-by-code/', method: 'POST', body }),
-      invalidatesTags: ['Tickets', 'Dashboard'],
+      invalidatesTags: ['Tickets', 'EntryDays', 'Dashboard'],
     }),
     voidTicket: builder.mutation<Ticket, { id: number; note: string }>({
       query: ({ id, note }) => ({ url: `/api/tickets/items/${id}/void/`, method: 'POST', body: { note } }),
-      invalidatesTags: ['Tickets'],
+      invalidatesTags: ['Tickets', 'TicketSales', 'EntryDays', 'Dashboard', 'Transactions'],
     }),
 
     // ─── Sales ────────────────────────────────────────────────────────────
@@ -284,20 +287,23 @@ export const apiSlice = createApi({
     }),
     createSale: builder.mutation<Sale, { items: { product_id: number; quantity: number; unit_price?: string }[]; note?: string }>({
       query: (body) => ({ url: '/api/sales/', method: 'POST', body }),
-      invalidatesTags: ['Sales', 'Products', 'Dashboard', 'Transactions'],
+      invalidatesTags: ['Sales', 'Products', 'StockMovements', 'LowStockAlerts', 'Dashboard', 'Transactions'],
     }),
     refundSale: builder.mutation<Sale, { id: number; note: string }>({
       query: ({ id, note }) => ({ url: `/api/sales/${id}/refund/`, method: 'POST', body: { note } }),
-      invalidatesTags: ['Sales', 'Products', 'Transactions'],
+      invalidatesTags: ['Sales', 'Products', 'StockMovements', 'LowStockAlerts', 'Dashboard', 'Transactions'],
     }),
     getDailySummary: builder.query<DailySummary, { date?: string }>({
       query: (params) => ({ url: '/api/sales/daily-summary/', params }),
+      providesTags: ['Sales'],
     }),
     getDailyProfit: builder.query<DailyProfit, { date?: string }>({
       query: (params) => ({ url: '/api/sales/daily-profit/', params }),
+      providesTags: ['Sales'],
     }),
     getTopProducts: builder.query<TopProductsResponse, { date?: string }>({
       query: (params) => ({ url: '/api/sales/top-products/', params }),
+      providesTags: ['Sales'],
     }),
 
     // ─── Reporting ────────────────────────────────────────────────────────

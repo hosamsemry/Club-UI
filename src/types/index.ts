@@ -44,6 +44,9 @@ export interface DashboardSummary {
   today_ticket_sales_count: number;
   today_ticket_revenue: string;
   today_checked_in_tickets_count: number;
+  today_capacity?: number | null;
+  today_gate_is_open?: boolean;
+  today_total_tickets_count?: number;
   recent_activity: ActivityItem[];
 }
 
@@ -87,9 +90,14 @@ export interface LowStockAlert {
   id: number;
   product: number;
   product_name: string;
-  stock_quantity: number;
-  low_stock_threshold: number;
+  product_sku?: string;
+  stock_quantity?: number;
+  low_stock_threshold?: number;
+  stock_quantity_at_trigger?: number;
+  threshold_value?: number;
   is_active: boolean;
+  resolved_at?: string | null;
+  created_at?: string;
 }
 
 // ─── Events / Reservations ───────────────────────────────────────────────────
@@ -117,7 +125,7 @@ export interface Reservation {
 }
 
 // ─── Gate Tickets ─────────────────────────────────────────────────────────────
-export type TicketStatus = 'valid' | 'checked_in' | 'voided';
+export type TicketStatus = 'issued' | 'checked_in' | 'voided';
 
 export interface TicketType {
   id: number;
@@ -230,6 +238,7 @@ export interface DailyReport {
   id: number;
   report_date: string;
   csv_file?: string | null;
+  csv_file_url?: string | null;
   total_sales?: string;
   total_tickets?: number;
   total_revenue?: string;

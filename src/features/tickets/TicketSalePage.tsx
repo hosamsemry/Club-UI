@@ -14,11 +14,13 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
 import { useCreateTicketSaleMutation, useGetEntryDaysQuery, useGetTicketTypesQuery } from '@/api/apiSlice';
 import { formatCurrency, formatDate } from '@/utils/format';
+import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { extractMessage } from '@/utils/error';
 
 const schema = z.object({
-  buyer_name: z.string().min(1, 'Buyer name is required'),
-  buyer_phone: z.string().min(1, 'Phone is required'),
+  buyer_name: z.string({ message: 'Buyer name is required' }).min(1, 'Buyer name is required'),
+  buyer_phone: z.string({ message: 'Phone is required' }).min(1, 'Phone is required'),
   notes: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
@@ -34,7 +36,7 @@ export function TicketSalePage() {
   const { data: ticketTypesData } = useGetTicketTypesQuery({ is_active: 'true' });
   const { data: entryDaysData, isLoading: isLoadingEntryDays } = useGetEntryDaysQuery({
     is_open: 'true',
-    start_date: new Date().toISOString().slice(0, 10),
+    start_date: format(new Date(), 'yyyy-MM-dd'),
     ordering: 'visit_date',
   });
   const [createSale, { isLoading, error }] = useCreateTicketSaleMutation();
@@ -43,6 +45,7 @@ export function TicketSalePage() {
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
+    defaultValues: { buyer_name: '', buyer_phone: '', notes: '' },
   });
 
   function setQty(typeId: number, delta: number) {
@@ -81,8 +84,8 @@ export function TicketSalePage() {
       reset();
       setVisitDate('');
       setQuantities({});
-    } catch {
-      // error shown via ErrorDisplay
+    } catch (err: unknown) {
+      toast.error(extractMessage(err) || 'Failed to complete ticket sale');
     }
   }
 

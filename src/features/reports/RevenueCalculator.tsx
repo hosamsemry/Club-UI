@@ -10,6 +10,7 @@ import { useLazyGetRevenueQuery } from '@/api/apiSlice';
 import { formatCurrency } from '@/utils/format';
 import type { RevenueField } from '@/types';
 import { toast } from 'sonner';
+import { extractMessage } from '@/utils/error';
 
 const FIELD_OPTIONS: { value: RevenueField; label: string }[] = [
   { value: 'products', label: 'Products' },
@@ -44,8 +45,8 @@ export function RevenueCalculator() {
     }
     try {
       await trigger({ start_date: startDate, end_date: endDate, fields: selectedFields }).unwrap();
-    } catch {
-      toast.error('Failed to calculate revenue');
+    } catch (err: unknown) {
+      toast.error(extractMessage(err) || 'Failed to calculate revenue');
     }
   }
 

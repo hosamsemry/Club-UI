@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, MoreHorizontal, TicketCheck, Ban } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -22,15 +22,23 @@ import { useGetTicketsQuery, useCheckInTicketMutation, useVoidTicketMutation } f
 import { formatDate } from '@/utils/format';
 import type { Ticket } from '@/types';
 import { toast } from 'sonner';
+import { extractMessage } from '@/utils/error';
 
-const voidSchema = z.object({ note: z.string().min(1, 'Note is required') });
+const voidSchema = z.object({ note: z.string({ message: 'Note is required' }).min(1, 'Note is required') });
 type VoidFormValues = z.infer<typeof voidSchema>;
 
 function VoidDialog({ open, onOpenChange, ticket }: { open: boolean; onOpenChange: (o: boolean) => void; ticket: Ticket | null }) {
-  const [voidTicket, { isLoading, error }] = useVoidTicketMutation();
+  const [voidTicket, { isLoading, error, reset: resetMutation }] = useVoidTicketMutation();
   const { register, handleSubmit, reset, formState: { errors } } = useForm<VoidFormValues>({
     resolver: zodResolver(voidSchema),
   });
+
+  useEffect(() => {
+    if (!open) {
+      reset();
+      resetMutation();
+    }
+  }, [open, reset, resetMutation]);
 
   async function onSubmit(values: VoidFormValues) {
     if (!ticket) return;
@@ -39,7 +47,9 @@ function VoidDialog({ open, onOpenChange, ticket }: { open: boolean; onOpenChang
       toast.success('Ticket voided');
       reset();
       onOpenChange(false);
-    } catch { /* shown via ErrorDisplay */ }
+    } catch (err: unknown) {
+      toast.error(extractMessage(err) || 'Failed to void ticket');
+    }
   }
 
   return (
@@ -86,8 +96,8 @@ export function TicketListPage() {
     try {
       await checkIn(id).unwrap();
       toast.success('Ticket checked in');
-    } catch {
-      toast.error('Check-in failed');
+    } catch (err: unknown) {
+      toast.error(extractMessage(err) || 'Check-in failed');
     }
   }
 
@@ -113,7 +123,7 @@ export function TicketListPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="valid">Valid</SelectItem>
+            <SelectItem value="issued">Valid</SelectItem>
             <SelectItem value="checked_in">Checked In</SelectItem>
             <SelectItem value="voided">Voided</SelectItem>
           </SelectContent>
@@ -159,7 +169,7 @@ export function TicketListPage() {
                         <MoreHorizontal className="h-4 w-4" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {ticket.status === 'valid' && (
+                        {ticket.status === 'issued' && (
                           <>
                             <DropdownMenuItem onClick={() => handleCheckIn(ticket.id)}>
                               <TicketCheck className="h-4 w-4 mr-2" /> Check In
@@ -173,7 +183,7 @@ export function TicketListPage() {
                             </DropdownMenuItem>
                           </>
                         )}
-                        {ticket.status !== 'valid' && (
+                        {ticket.status !== 'issued' && (
                           <DropdownMenuItem disabled>No actions available</DropdownMenuItem>
                         )}
                       </DropdownMenuContent>

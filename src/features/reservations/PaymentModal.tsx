@@ -12,9 +12,10 @@ import { useRecordPaymentMutation } from '@/api/apiSlice';
 import type { Reservation } from '@/types';
 import { formatCurrency } from '@/utils/format';
 import { toast } from 'sonner';
+import { extractErrorDetails } from '@/utils/error';
 
 const schema = z.object({
-  amount: z.string().min(1, 'Amount is required'),
+  amount: z.string({ message: 'Amount is required' }).min(1, 'Amount is required'),
   note: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
@@ -26,14 +27,15 @@ interface Props {
 }
 
 export function PaymentModal({ open, onOpenChange, reservation }: Props) {
-  const [recordPayment, { isLoading, error }] = useRecordPaymentMutation();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const [recordPayment, { isLoading, error, reset: resetMutation }] = useRecordPaymentMutation();
+  const { register, handleSubmit, reset, setError, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
 
   useEffect(() => {
+    resetMutation();
     if (open) reset();
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, reset, resetMutation]);
 
   const remaining = reservation
     ? parseFloat(reservation.total_amount) - parseFloat(reservation.paid_amount ?? '0')
@@ -46,8 +48,14 @@ export function PaymentModal({ open, onOpenChange, reservation }: Props) {
       toast.success('Payment recorded');
       reset();
       onOpenChange(false);
-    } catch {
-      // error shown via ErrorDisplay
+    } catch (err: unknown) {
+      const details = extractErrorDetails(err);
+      for (const [field, msg] of Object.entries(details.fieldErrors)) {
+        if (['amount', 'note'].includes(field)) {
+          setError(field as keyof FormValues, { message: msg });
+        }
+      }
+      toast.error(details.message);
     }
   }
 

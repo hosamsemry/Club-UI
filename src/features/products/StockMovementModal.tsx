@@ -12,9 +12,10 @@ import { ErrorDisplay } from '@/components/common/ErrorDisplay';
 import { useCreateStockMovementMutation, useGetProductsQuery } from '@/api/apiSlice';
 import type { MovementType } from '@/types';
 import { toast } from 'sonner';
+import { extractErrorDetails } from '@/utils/error';
 
 const schema = z.object({
-  product: z.string().min(1, 'Product is required'),
+  product: z.string({ message: 'Product is required' }).min(1, 'Product is required'),
   movement_type: z.enum(['restock', 'sale', 'adjustment', 'refund']),
   quantity: z.coerce.number().min(1, 'Quantity must be at least 1'),
   direction: z.enum(['in', 'out']).optional(),
@@ -37,9 +38,9 @@ const MOVEMENT_TYPES: { value: MovementType; label: string }[] = [
 
 export function StockMovementModal({ open, onOpenChange, preselectedProductId }: Props) {
   const { data: productsData } = useGetProductsQuery({ is_active: 'true' });
-  const [createMovement, { isLoading, error }] = useCreateStockMovementMutation();
+  const [createMovement, { isLoading, error, reset: resetMutation }] = useCreateStockMovementMutation();
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, setValue, setError, watch, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
     defaultValues: {
       movement_type: 'restock',
@@ -48,13 +49,14 @@ export function StockMovementModal({ open, onOpenChange, preselectedProductId }:
   });
 
   useEffect(() => {
+    resetMutation();
     if (open) {
       reset({
         movement_type: 'restock',
         product: preselectedProductId ? String(preselectedProductId) : '',
       });
     }
-  }, [open, preselectedProductId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, preselectedProductId, reset, resetMutation]);
 
   const movementType = watch('movement_type');
 
@@ -73,8 +75,14 @@ export function StockMovementModal({ open, onOpenChange, preselectedProductId }:
       toast.success('Stock movement recorded');
       reset();
       onOpenChange(false);
-    } catch {
-      // error shown via ErrorDisplay
+    } catch (err: unknown) {
+      const details = extractErrorDetails(err);
+      for (const [field, msg] of Object.entries(details.fieldErrors)) {
+        if (['product', 'movement_type', 'quantity', 'direction', 'note'].includes(field)) {
+          setError(field as keyof FormValues, { message: msg });
+        }
+      }
+      toast.error(details.message);
     }
   }
 

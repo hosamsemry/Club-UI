@@ -25,9 +25,10 @@ import {
   useGetTopProductsQuery,
 } from '@/api/apiSlice';
 import { formatCurrency, formatDate } from '@/utils/format';
+import { format } from 'date-fns';
 import { RevenueCalculator } from '../reports/RevenueCalculator';
 
-const today = new Date().toISOString().slice(0, 10);
+const today = format(new Date(), 'yyyy-MM-dd');
 
 function parseAmount(value?: string | number) {
   if (typeof value === 'number') return value;

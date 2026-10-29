@@ -13,6 +13,7 @@ import { formatDate } from '@/utils/format';
 import { getAccessToken } from '@/utils/auth';
 import { API_BASE_URL } from '@/api/apiSlice';
 import { toast } from 'sonner';
+import { extractMessage } from '@/utils/error';
 
 
 export function ReportsPage() {
@@ -30,32 +31,36 @@ export function ReportsPage() {
 
   function handleExport(reportId: number) {
     const token = getAccessToken();
-    const url = `${API_BASE_URL}/api/reporting/daily/${reportId}/export/csv/`;
-    const a = document.createElement('a');
-    a.href = url;
-    a.setAttribute('download', `report-${reportId}.csv`);
-    if (token) {
-      // Use fetch to handle auth
-      void fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-        .then((res) => res.blob())
-        .then((blob) => {
-          const blobUrl = URL.createObjectURL(blob);
-          a.href = blobUrl;
-          a.click();
-          URL.revokeObjectURL(blobUrl);
-        })
-        .catch(() => toast.error('Export failed'));
-    } else {
-      a.click();
+    if (!token) {
+      toast.error('Authentication expired. Please sign in again.');
+      return;
     }
+    const url = `${API_BASE_URL}/api/reporting/daily/${reportId}/export/csv/`;
+    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (res) => {
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData?.message || 'Export failed');
+        }
+        return res.blob();
+      })
+      .then((blob) => {
+        const a = document.createElement('a');
+        const blobUrl = URL.createObjectURL(blob);
+        a.href = blobUrl;
+        a.setAttribute('download', `report-${reportId}.csv`);
+        a.click();
+        URL.revokeObjectURL(blobUrl);
+      })
+      .catch((err) => toast.error(err instanceof Error ? err.message : 'Export failed'));
   }
 
   async function handleRegenerate(reportId: number) {
     try {
       await regenerate(reportId).unwrap();
       toast.success('Report regeneration scheduled');
-    } catch {
-      toast.error('Failed to schedule regeneration');
+    } catch (err: unknown) {
+      toast.error(extractMessage(err) || 'Failed to schedule regeneration');
     }
   }
 
@@ -77,7 +82,7 @@ export function ReportsPage() {
           <Input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1); }} className="w-40" />
         </div>
         {(startDate || endDate) && (
-          <Button variant="ghost" size="sm" onClick={() => { setStartDate(''); setEndDate(''); }}>
+          <Button variant="ghost" size="sm" onClick={() => { setStartDate(''); setEndDate(''); setPage(1); }}>
             Clear
           </Button>
         )}
@@ -110,7 +115,7 @@ export function ReportsPage() {
                 <TableRow key={report.id}>
                   <TableCell className="font-medium">{formatDate(report.report_date)}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {report.csv_file ? '✓ Available' : 'Not generated'}
+                    {report.csv_file_url || report.csv_file ? '✓ Available' : 'Not generated'}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">

@@ -8,8 +8,9 @@ import { useGetProductsQuery, useGetCategoriesQuery, useCreateSaleMutation } fro
 import { formatCurrency } from '@/utils/format';
 import type { Product } from '@/types';
 import { toast } from 'sonner';
+import { extractMessage } from '@/utils/error';
 
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 20;
 
 interface CartItem {
   product: Product;
@@ -216,13 +217,14 @@ export function NewSalePage() {
   useEffect(() => {
     if (!data) return;
     if (page === 1) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAccumulatedProducts(data.results);
     } else {
       setAccumulatedProducts((prev) => {
-        const existingIds = new Set(prev.map((p) => p.id));
-        const fresh = data.results.filter((p) => !existingIds.has(p.id));
-        return [...prev, ...fresh];
+        const freshMap = new Map(data.results.map((p) => [p.id, p]));
+        const updated = prev.map((p) => freshMap.get(p.id) ?? p);
+        const prevIds = new Set(prev.map((p) => p.id));
+        const added = data.results.filter((p) => !prevIds.has(p.id));
+        return [...updated, ...added];
       });
     }
   }, [data, page]);
@@ -292,8 +294,9 @@ export function NewSalePage() {
       }).unwrap();
       toast.success(`Sale of ${formatCurrency(cartTotal)} completed!`);
       clearCart();
-    } catch {
-      // shown via ErrorDisplay
+      setPage(1);
+    } catch (err: unknown) {
+      toast.error(extractMessage(err) || 'Failed to complete sale');
     }
   }
 

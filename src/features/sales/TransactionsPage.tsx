@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState, useEffect } from 'react';
 import {
   CalendarDays,
   Download,
@@ -13,6 +13,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { extractMessage } from '@/utils/error';
 import { API_BASE_URL, useGetTransactionsQuery, useRefundSaleMutation } from '@/api/apiSlice';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -50,11 +51,12 @@ import { Textarea } from '@/components/ui/textarea';
 import type { TransactionRow } from '@/types';
 import { getAccessToken } from '@/utils/auth';
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/format';
+import { format } from 'date-fns';
 
 const PAGE_SIZE = 20;
-const today = new Date().toISOString().slice(0, 10);
+const today = format(new Date(), 'yyyy-MM-dd');
 
-const refundSchema = z.object({ note: z.string().min(1, 'Note is required') });
+const refundSchema = z.object({ note: z.string({ message: 'Note is required' }).min(1, 'Note is required') });
 type RefundFormValues = z.infer<typeof refundSchema>;
 
 type RefundTarget = {
@@ -93,10 +95,17 @@ function RefundDialog({
   onOpenChange: (open: boolean) => void;
   target: RefundTarget;
 }) {
-  const [refundSale, { isLoading, error }] = useRefundSaleMutation();
+  const [refundSale, { isLoading, error, reset: resetRefund }] = useRefundSaleMutation();
   const { register, handleSubmit, reset, formState: { errors } } = useForm<RefundFormValues>({
     resolver: zodResolver(refundSchema),
   });
+
+  useEffect(() => {
+    if (!open) {
+      reset();
+      resetRefund();
+    }
+  }, [open, reset, resetRefund]);
 
   async function onSubmit(values: RefundFormValues) {
     if (!target) return;
@@ -105,8 +114,8 @@ function RefundDialog({
       toast.success('Sale refunded');
       reset();
       onOpenChange(false);
-    } catch {
-      // handled by ErrorDisplay
+    } catch (err: unknown) {
+      toast.error(extractMessage(err) || 'Failed to refund sale');
     }
   }
 
@@ -222,7 +231,7 @@ export function TransactionsPage() {
         anchor.click();
         URL.revokeObjectURL(blobUrl);
       })
-      .catch(() => toast.error('Failed to export transactions'));
+      .catch((err: unknown) => toast.error(extractMessage(err) || 'Failed to export transactions'));
   }
 
   return (

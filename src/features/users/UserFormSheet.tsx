@@ -14,6 +14,7 @@ import { ROLE_LABELS } from '@/utils/roles';
 import { useAppSelector } from '@/app/hooks';
 import type { ClubUser, UserRole } from '@/types';
 import { toast } from 'sonner';
+import { extractErrorDetails } from '@/utils/error';
 
 // Roles a manager can assign (cannot create owners)
 const ASSIGNABLE_ROLES_BY_ROLE: Record<string, UserRole[]> = {
@@ -22,14 +23,14 @@ const ASSIGNABLE_ROLES_BY_ROLE: Record<string, UserRole[]> = {
 };
 
 const createSchema = z.object({
-  email: z.string().email('Valid email required'),
-  username: z.string().min(1, 'Username is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.string().min(1, 'Role is required'),
+  email: z.string({ message: 'Valid email required' }).email('Valid email required'),
+  username: z.string({ message: 'Username is required' }).min(1, 'Username is required'),
+  password: z.string({ message: 'Password is required' }).min(6, 'Password must be at least 6 characters'),
+  role: z.string({ message: 'Role is required' }).min(1, 'Role is required'),
 });
 
 const editSchema = z.object({
-  role: z.string().min(1, 'Role is required'),
+  role: z.string({ message: 'Role is required' }).min(1, 'Role is required'),
   is_active: z.boolean(),
 });
 
@@ -55,7 +56,7 @@ export function UserFormSheet({ open, onOpenChange, user }: Props) {
   // ── Create form ────────────────────────────────────────────────────
   const createForm = useForm<CreateValues>({
     resolver: zodResolver(createSchema) as never,
-    defaultValues: { role: 'cashier' },
+    defaultValues: { email: '', username: '', password: '', role: 'cashier' },
   });
 
   // ── Edit form ──────────────────────────────────────────────────────
@@ -68,7 +69,7 @@ export function UserFormSheet({ open, onOpenChange, user }: Props) {
     if (isEdit && user) {
       editForm.reset({ role: user.role, is_active: user.is_active });
     } else {
-      createForm.reset({ role: 'cashier' });
+      createForm.reset({ email: '', username: '', password: '', role: 'cashier' });
     }
   }, [user, isEdit, open]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -77,8 +78,14 @@ export function UserFormSheet({ open, onOpenChange, user }: Props) {
       await createUser(values).unwrap();
       toast.success('User created');
       onOpenChange(false);
-    } catch {
-      // shown via ErrorDisplay
+    } catch (err: unknown) {
+      const details = extractErrorDetails(err);
+      for (const [field, msg] of Object.entries(details.fieldErrors)) {
+        if (['email', 'username', 'password', 'role'].includes(field)) {
+          createForm.setError(field as keyof CreateValues, { message: msg });
+        }
+      }
+      toast.error(details.message);
     }
   }
 
@@ -88,8 +95,14 @@ export function UserFormSheet({ open, onOpenChange, user }: Props) {
       await updateUser({ id: user.id, ...values }).unwrap();
       toast.success('User updated');
       onOpenChange(false);
-    } catch {
-      // shown via ErrorDisplay
+    } catch (err: unknown) {
+      const details = extractErrorDetails(err);
+      for (const [field, msg] of Object.entries(details.fieldErrors)) {
+        if (['role', 'is_active'].includes(field)) {
+          editForm.setError(field as keyof EditValues, { message: msg });
+        }
+      }
+      toast.error(details.message);
     }
   }
 

@@ -13,14 +13,22 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/common/PageHeader';
 import { BooleanBadge } from '@/components/common/StatusBadge';
 import { ErrorDisplay } from '@/components/common/ErrorDisplay';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { useGetTicketTypesQuery, useCreateTicketTypeMutation, useUpdateTicketTypeMutation } from '@/api/apiSlice';
 import { formatCurrency } from '@/utils/format';
 import type { TicketType } from '@/types';
 import { toast } from 'sonner';
+import { extractErrorDetails } from '@/utils/error';
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  price: z.string().min(1, 'Price is required'),
+  name: z.string({ message: 'Name is required' }).min(1, 'Name is required'),
+  price: z.string({ message: 'Price is required' }).min(1, 'Price is required'),
   display_order: z.number().min(0),
   is_active: z.boolean(),
 });
@@ -28,16 +36,18 @@ type FormValues = z.infer<typeof schema>;
 
 function TicketTypeDialog({ open, onOpenChange, ticketType }: { open: boolean; onOpenChange: (o: boolean) => void; ticketType: TicketType | null }) {
   const isEdit = !!ticketType;
-  const [create, { isLoading: creating, error: ce }] = useCreateTicketTypeMutation();
-  const [update, { isLoading: updating, error: ue }] = useUpdateTicketTypeMutation();
-  const error = ce ?? ue;
+  const [create, { isLoading: creating, error: ce, reset: resetCreate }] = useCreateTicketTypeMutation();
+  const [update, { isLoading: updating, error: ue, reset: resetUpdate }] = useUpdateTicketTypeMutation();
+  const error = isEdit ? ue : ce;
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, setValue, setError, watch, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { name: '', price: '', display_order: 0, is_active: true },
   });
 
   useEffect(() => {
+    resetCreate();
+    resetUpdate();
     if (open) {
       reset(
         ticketType
@@ -45,7 +55,7 @@ function TicketTypeDialog({ open, onOpenChange, ticketType }: { open: boolean; o
           : { name: '', price: '', display_order: 0, is_active: true },
       );
     }
-  }, [ticketType, open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ticketType, open, reset, resetCreate, resetUpdate]);
 
   async function onSubmit(values: FormValues) {
     try {
@@ -58,7 +68,15 @@ function TicketTypeDialog({ open, onOpenChange, ticketType }: { open: boolean; o
       }
       reset();
       onOpenChange(false);
-    } catch { /* shown */ }
+    } catch (err: unknown) {
+      const details = extractErrorDetails(err);
+      for (const [field, msg] of Object.entries(details.fieldErrors)) {
+        if (['name', 'price', 'display_order', 'is_active'].includes(field)) {
+          setError(field as keyof FormValues, { message: msg });
+        }
+      }
+      toast.error(details.message);
+    }
   }
 
   const isActiveValue = watch('is_active');
@@ -85,6 +103,7 @@ function TicketTypeDialog({ open, onOpenChange, ticketType }: { open: boolean; o
             <div className="space-y-1.5">
               <Label htmlFor="tt-order">Display Order</Label>
               <Input id="tt-order" type="number" {...register('display_order', { valueAsNumber: true })} />
+              {errors.display_order && <p className="text-xs text-destructive">{errors.display_order.message}</p>}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -108,9 +127,11 @@ function TicketTypeDialog({ open, onOpenChange, ticketType }: { open: boolean; o
 }
 
 export function TicketTypesPage() {
-  const { data, isLoading, error } = useGetTicketTypesQuery({});
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error } = useGetTicketTypesQuery({ page: String(page) });
   const [formOpen, setFormOpen] = useState(false);
   const [editType, setEditType] = useState<TicketType | null>(null);
+  const totalPages = Math.ceil((data?.count ?? 0) / 20);
 
   function openCreate() { setEditType(null); setFormOpen(true); }
   function openEdit(t: TicketType) { setEditType(t); setFormOpen(true); }
@@ -165,6 +186,31 @@ export function TicketTypesPage() {
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-4">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className={page <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <span className="text-sm px-3 py-2">Page {page} of {totalPages}</span>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className={page >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
+
       <TicketTypeDialog open={formOpen} onOpenChange={setFormOpen} ticketType={editType} />
     </div>
   );

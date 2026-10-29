@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { useCheckInByCodeMutation } from '@/api/apiSlice';
 import { formatDate } from '@/utils/format';
+import { extractMessage } from '@/utils/error';
 import type { Ticket } from '@/types';
 
 export function CheckInPage() {
@@ -23,10 +24,9 @@ export function CheckInPage() {
       setLastResult({ success: true, ticket });
       setCode('');
     } catch (err: unknown) {
-      const apiErr = err as { data?: { detail?: string } };
       setLastResult({
         success: false,
-        message: apiErr.data?.detail ?? 'Check-in failed. Ticket may be invalid or already used.',
+        message: extractMessage(err) || 'Check-in failed. Ticket may be invalid or already used.',
       });
     }
   }

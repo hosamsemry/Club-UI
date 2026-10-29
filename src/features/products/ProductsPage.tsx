@@ -23,6 +23,7 @@ import { useGetProductsQuery, useGetCategoriesQuery, useDeleteProductMutation } 
 import { formatCurrency } from '@/utils/format';
 import type { Product } from '@/types';
 import { toast } from 'sonner';
+import { extractMessage } from '@/utils/error';
 
 export function ProductsPage() {
   const [page, setPage] = useState(1);
@@ -65,8 +66,8 @@ export function ProductsPage() {
       await deleteProduct(deleteTarget.id).unwrap();
       toast.success('Product deleted');
       setDeleteTarget(null);
-    } catch {
-      toast.error('Failed to delete product');
+    } catch (err: unknown) {
+      toast.error(extractMessage(err) || 'Failed to delete product');
     }
   }
 

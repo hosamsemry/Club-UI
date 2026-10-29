@@ -74,7 +74,9 @@ export function StockMovementsPage() {
                       {formatMovementType(movement.movement_type)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-muted-foreground capitalize">{movement.direction ?? '—'}</TableCell>
+                  <TableCell className="text-muted-foreground capitalize">
+                    {movement.direction ?? (movement.movement_type === 'restock' || movement.movement_type === 'refund' || movement.quantity > 0 ? 'in' : 'out')}
+                  </TableCell>
                   <TableCell className="text-right font-mono">{movement.quantity}</TableCell>
                   <TableCell className="text-muted-foreground max-w-xs truncate">{movement.note || '—'}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">{formatDateTime(movement.created_at)}</TableCell>
